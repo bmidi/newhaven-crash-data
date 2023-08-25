@@ -52,9 +52,6 @@
       <div id="filters" class="mt3 f6">
 
         <h5 class="f5 mb1 mt3">Crash Participants</h5>
-        <label>
-          <input type="checkbox" id="vehiclesOnly"> Vehicles Only
-        </label>
 
         <label>
           <input type="checkbox" id="pedestrians" class="ml2"> Pedestrians
@@ -64,10 +61,10 @@
           <input type="checkbox" id="cyclists" class="ml2"> Cyclists
         </label>
 
-        <h5 class="f5 mb1 mt3">Impact</h5>
+<!--        <h5 class="f5 mb1 mt3">Impact</h5>
         <label>
           <input type="checkbox" id="injury"> Injuries Only
-        </label>
+        </label>-->
         
         <label>
           <input type="checkbox" id="fatal" class="ml2"> Fatal
@@ -99,7 +96,7 @@
   <script>
 
     var map = L.map('map', {
-      zoomControl: false,
+      zoomControl: true,
       center: [41.308, -72.924],
       zoom: 14,
       minZoom: 12,
@@ -137,7 +134,7 @@
     }
 
     var initFrom = dateToTS( new Date(2017, 0, 1) );
-    var initTo = dateToTS( new Date(2020, 11, 01) );
+    var initTo = dateToTS( new Date(2023, 8, 23) );
 
     Papa.parse('./data/crashes.csv', {
       download: true,
@@ -259,7 +256,7 @@
           type: 'double',
 
           min: dateToTS(new Date(2017, 0, 1)),
-          max: dateToTS(new Date(2020, 11, 01)),
+          max: dateToTS(new Date(2020, 11, 1)),
 
           from: initFrom,
           to: initTo,
