@@ -61,7 +61,7 @@
           <input type="checkbox" id="cyclists" class="ml2"> Cyclists
         </label>
 
-<!--        <h5 class="f5 mb1 mt3">Impact</h5>
+        <!--<h5 class="f5 mb1 mt3">Impact</h5>
         <label>
           <input type="checkbox" id="injury"> Injuries Only
         </label>-->
@@ -144,7 +144,7 @@
 
         var data = result.data;
 
-        var heat = L.heatLayer( [], { radius: 20 } ).addTo(map);
+        var heat = L.heatLayer( [], { radius: 5 } ).addTo(map);
         var individualPoints = L.layerGroup().addTo(map);
 
         var tsCoef = 100000.0 // original timestamp needs to be multiplied by this to work in JS
@@ -212,33 +212,29 @@
           // Update the heatlayer
           var intensity = $('#intensity').val();
 
-          // If zoomed in all the way, show points instead of a heatmap
-          if ( map.getZoom() >= 18 ) {
 
-            heat.setLatLngs([]);
+          heat.setLatLngs([]);
 
-            crashesFiltered.map(function(crash) {
-              var diagramUrl = 'https://www.ctcrash.uconn.edu/MMUCCDiagram?id=' + crash.id + '&asImage=true'
+          crashesFiltered.map(function(crash) {
+            var diagramUrl = 'https://www.ctcrash.uconn.edu/MMUCCDiagram?id=' + crash.id + '&asImage=true'
 
-              var circle = L.circleMarker([crash.x, crash.y], {
-                radius: 5,
-                color: '#002147',
-                fillColor: '#002147',
-                fillOpacity: 0.8,
-                opacity: 0.8,
-                weight: 0,
-              }).bindPopup(
-                '<b>Crash ID ' + crash.id + '</b><br>'
-                  + tsToDate(crash.d * tsCoef) + ' at ' + crash.t
-                  + '<a href="' + diagramUrl + '" target="_blank"><img src="' + diagramUrl + '" alt="Crash diagram"></a>'
-                  + '<br>Severity: ' + (crash.s === 'K' ? 'Fatal crash' : crash.s === 'A' ? 'Injury of any type' : 'Property damage only'),
-                { minWidth: 300 }
-              )
-              
-              individualPoints.addLayer(circle);
-            })
-
-          }
+            var circle = L.circleMarker([crash.x, crash.y], {
+              radius: 5,
+              color: '#002147',
+              fillColor: '#002147',
+              fillOpacity: 0.8,
+              opacity: 0.8,
+              weight: 0,
+            }).bindPopup(
+              '<b>Crash ID ' + crash.id + '</b><br>'
+                + tsToDate(crash.d * tsCoef) + ' at ' + crash.t
+                + '<a href="' + diagramUrl + '" target="_blank"><img src="' + diagramUrl + '" alt="Crash diagram"></a>'
+                + '<br>Severity: ' + (crash.s === 'K' ? 'Fatal crash' : crash.s === 'A' ? 'Injury of any type' : 'Property damage only'),
+              { minWidth: 300 }
+            )
+            
+            individualPoints.addLayer(circle);
+          })
 
           // Zoomed out enough for a heatmap
           else {
