@@ -235,16 +235,6 @@
             
             individualPoints.addLayer(circle);
           })
-
-          // Zoomed out enough for a heatmap
-          else {
-            heat.setLatLngs(
-              crashesFiltered.map(function(point) {
-                return [point.x, point.y, intensity / 3.0];
-              })
-            )
-          }
-
         }
 
         // Initialize Ion range slider
