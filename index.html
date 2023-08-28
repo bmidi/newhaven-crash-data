@@ -35,14 +35,9 @@
   <div id="map" class="vh-100 vw-100 bg-near-white"></div>
 
   <div id="legend" class="bg-white fixed top-0 left-0 pa3 mt2 ml2 br1 o-90" style="z-index: 999; width: 450px">
-    <h1 class="f3 mt0">New Haven Crash Map:</h1>
-    <h3>Resulting in Injury or Death</h3>
+    <h1 class="f3 mt0">New Haven Crash Map</h1>
+    <p>Motor Vehicle Crashes Resulting in Injury or Death</p>
 
-    <p class="measure">
-      This is a heatmap of vehicle crashes in New Haven resulting in injury or death.
-      Use the slider to change the time frame.
-      Zoom in to hotspots to see individual crash location data.
-    </p>
 
     <form class="ph2">
       <input type="text" class="js-range-slider" name="dates" value="" />
@@ -54,20 +49,16 @@
         <h5 class="f5 mb1 mt3">Crash Participants</h5>
 
         <label>
-          <input type="checkbox" id="pedestrians" class="ml2"> Pedestrians
+          <input type="checkbox" id="pedestrians"> Pedestrians
         </label>
 
         <label>
-          <input type="checkbox" id="cyclists" class="ml2"> Cyclists
+          <input type="checkbox" id="cyclists" > Cyclists
         </label>
 
-        <!--<h5 class="f5 mb1 mt3">Impact</h5>
+        <h5 class="f5 mb1 mt3">Impact</h5>
         <label>
-          <input type="checkbox" id="injury"> Injuries Only
-        </label>-->
-        
-        <label>
-          <input type="checkbox" id="fatal" class="ml2"> Fatal
+          <input type="checkbox" id="fatal"> Fatal
         </label>
 
         <h5 class="f5 mb1 mt3">Roads</h5>
@@ -77,16 +68,6 @@
         <label>
           <input type="checkbox" id="highways" class="ml2"> Highways
         </label>
-
-
-        <h5 class="f5 mb1 mt3">Map Appearance</h5>
-        <label>
-          <input type="checkbox" id="labels" checked="checked"> Street labels
-        </label>
-        <label class="ml4">
-          Intensity <input type="range" value="10" min="1" max="30" id="intensity" class="v-mid mr2">
-        </label>
-
       </div>
 
     </form>
@@ -134,7 +115,7 @@
     }
 
     var initFrom = dateToTS( new Date(2017, 0, 1) );
-    var initTo = dateToTS( new Date(2023, 8, 23) );
+    var initTo = dateToTS( new Date(2023, 7, 23) );
 
     Papa.parse('./data/crashes.csv', {
       download: true,
@@ -144,7 +125,7 @@
 
         var data = result.data;
 
-        var heat = L.heatLayer( [], { radius: 5 } ).addTo(map);
+        var heat = L.heatLayer( [], { radius: 20, blur: 10, } ).addTo(map);
         var individualPoints = L.layerGroup().addTo(map);
 
         var tsCoef = 100000.0 // original timestamp needs to be multiplied by this to work in JS
@@ -155,7 +136,7 @@
             : ('From ' + formattedFrom + ' to ' + formattedTo)
 
           text += ', there ' + (crashesTotal === 1 ? 'was ' : 'were ') + (crashesTotal === 0 ? 'no' : crashesTotal.toLocaleString())
-          text += ' dangerous car crash' + (crashesTotal === 1 ? '' : 'es') + ' in New Haven.'
+          text += ' dangerous motor vehicle crash' + (crashesTotal === 1 ? '' : 'es') + ' in or around New Haven.'
 
           if (crashesTotal > 1) {
             text += ' Of those, ' + (crashesPed > 0 ? crashesPed.toLocaleString() : ' none');
@@ -164,7 +145,7 @@
             text += ' involved a cyclist.';
           }
 
-          text += ' <span class="i ' + (filtered ? '' : 'red') + '">'
+          text += '<span style="font-weight:bold;color:darkgreen;" class="i ' + (filtered ? '' : 'red') + '"><br><br>'
             + (filtered ? filtered.toLocaleString() : 'No ') + ' crash'
             + (filtered === 1 ? '' : 'es') + ' satisf' + (filtered === 1 ? 'ies' : 'y')
             + ' your filtering criteria.</span>'
@@ -194,7 +175,7 @@
 
               && (( $('#propertyDamage').prop('checked') ? point.s === 'O' : false)
               || ( $('#injury').prop('checked') ? point.s === 'A' : false)
-              || ( $('#fatal').prop('checked') ? point.s === 'K' : false))
+              || ( $('#fatal').prop('checked') ? point.s === 'K' : true))
           });
 
           updateStatsText(
@@ -206,43 +187,52 @@
             crashesFiltered.length
           )
 
-          // Despite zoom, clear individual points
-          individualPoints.clearLayers();
+
 
           // Update the heatlayer
-          var intensity = $('#intensity').val();
+          var intensity = 10;
 
+          // If zoomed in all the way, show points instead of a heatmap
+          if ( map.getZoom() >= 16 ) {
+            crashesFiltered.map(function(crash) {
+              var diagramUrl = 'https://www.ctcrash.uconn.edu/MMUCCDiagram?id=' + crash.id + '&asImage=true'
 
-          heat.setLatLngs([]);
-
-          crashesFiltered.map(function(crash) {
-            var diagramUrl = 'https://www.ctcrash.uconn.edu/MMUCCDiagram?id=' + crash.id + '&asImage=true'
-
-            var circle = L.circleMarker([crash.x, crash.y], {
-              radius: 5,
-              color: '#002147',
-              fillColor: '#002147',
-              fillOpacity: 0.8,
-              opacity: 0.8,
-              weight: 0,
-            }).bindPopup(
-              '<b>Crash ID ' + crash.id + '</b><br>'
-                + tsToDate(crash.d * tsCoef) + ' at ' + crash.t
-                + '<a href="' + diagramUrl + '" target="_blank"><img src="' + diagramUrl + '" alt="Crash diagram"></a>'
-                + '<br>Severity: ' + (crash.s === 'K' ? 'Fatal crash' : crash.s === 'A' ? 'Injury of any type' : 'Property damage only'),
-              { minWidth: 300 }
+              var circle = L.circleMarker([crash.x, crash.y], {
+                radius: 7,
+                color: '#000000',
+                fillColor: '#FFFFFF',
+                fillOpacity: 0.8,
+                opacity: 0.8,
+                weight: 0,
+              }).bindPopup(
+                '<b>Crash ID ' + crash.id + '</b><br>'
+                  + tsToDate(crash.d * tsCoef) + ' at ' + crash.t
+                  + '<a href="' + diagramUrl + '" target="_blank"><img src="' + diagramUrl + '" alt="Crash diagram"></a>'
+                  + '<br>Severity: ' + (crash.s === 'K' ? 'Fatal crash' : crash.s === 'A' ? 'Injury of any type' : 'Property damage only'
+                  + '<br>Trafficway Ownership: ' + crash.s ==='' ? 'Public road' : 'Other'),
+                { minWidth: 300 }
+              )
+              
+              individualPoints.addLayer(circle);})
+            }
+          // Zoomed out enough for a heatmap
+          else {
+            heat.setLatLngs(
+              crashesFiltered.map(function(point) {
+                return [point.x, point.y, intensity];
+              })
             )
-            
-            individualPoints.addLayer(circle);
-          })
+          }
+
         }
+
 
         // Initialize Ion range slider
         var slider = $(".js-range-slider").ionRangeSlider({
           type: 'double',
 
           min: dateToTS(new Date(2017, 0, 1)),
-          max: dateToTS(new Date(2023, 8, 23)),
+          max: dateToTS(new Date(2023, 7, 1)),
 
           from: initFrom,
           to: initTo,
@@ -266,16 +256,6 @@
           )
         })
 
-
-        // Toggle street/town labels
-        $('#labels').change(function(e) {
-          if ( $('#labels').prop('checked') ) {
-            labels.addTo(map);
-          } else {
-            map.removeLayer(labels);
-          }
-        })
-
         map.on('zoomend', function() {
           updateHeatLayer(
             slider[0].value.split(';')[0],
@@ -284,16 +264,15 @@
         })
 
         // Set default properties
-        $('#filters input').prop('checked', 'checked');
-        $('#intensity').val(5);
+        $('#filters #pedestrians').prop('checked', 'checked');
+        $('#filters #cyclists').prop('checked', 'checked');
+        $('#filters #fatal').prop('unchecked', 'checked');
+        $('#filters #local').prop('checked', 'checked');
         updateHeatLayer( initFrom, initTo );
-
       }
     })
 
-    L.control.attribution({
-      prefix: 'View <a href="https://github.com/bustelyo/newhaven-crash-data">code on GitHub</a>'
-    }).addTo(map)
+    L.control.attribution().addTo(map)
 
   </script>
 
@@ -316,16 +295,4 @@
   </style>
 
 </body>
-
-<!-- Global site tag (gtag.js) - Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=UA-153586697-2"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'UA-153586697-2');
-</script>
-
-
 </html>
