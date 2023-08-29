@@ -7,15 +7,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Motor Vehicle Crashes in New Haven Resulting in Serious Injury or Death.">
   <link rel="icon" type="image/png" href="./img/favicon.png">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tachyons/4.11.1/tachyons.min.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.6.0/leaflet.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ion-rangeslider/2.3.1/css/ion.rangeSlider.min.css"/>
-  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.0/papaparse.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.6.0/leaflet.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.heat/0.2.0/leaflet-heat.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/ion-rangeslider/2.3.1/js/ion.rangeSlider.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/leaflet.sync@0.2.4/L.Map.Sync.js"></script>   
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tachyons/4.11.1/tachyons.min.css" integrity="sha512-d0v474klOFSF7qD9WDvyRxAvXaWSxCHDZdnBSZQjo8BpVr6vpjwAgqetpqkKP38DzlOzdVPaLVnzzW1Ba8wB9w==" crossorigin="anonymous" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.min.css" integrity="sha512-1xoFisiGdy9nvho8EgXuXvnpR5GAMSjFwp40gSRE3NwdUdIMIKuPa7bqoUhLD0O/5tPNhteAsE5XyyMi5reQVA==" crossorigin="anonymous" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ion-rangeslider/2.3.1/css/ion.rangeSlider.min.css" integrity="sha512-NWCafukXClS6fKch6bSMl/WvPzZrD1OGMf1oMAnFYXSSKZ7hgeswls+r4SdK4bFJauVwmvFf7HlMwji2TsjROA==" crossorigin="anonymous" />  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js" integrity="sha512-rKFvwjvE4liWPlFnvH4ZhRDfNZ9FOpdkD/BU5gAIA3VS3vOQrQ5BjKgbO3kxebKhHdHcNUHLqxQYSoxee9UwgA==" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.js" integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.heat/0.2.0/leaflet-heat.js" integrity="sha512-KhIBJeCI4oTEeqOmRi2gDJ7m+JARImhUYgXWiOTIp9qqySpFUAJs09erGKem4E5IPuxxSTjavuurvBitBmwE0w==" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ion-rangeslider/2.3.1/js/ion.rangeSlider.min.js" integrity="sha512-kZsqvmw94Y8hyhwtWZJvDtobwQ9pLhF1DuIvcqSuracbRn6WJs1Ih+04fpH/8d1CFKysp7XA1tR0Aa2jKLTQUg==" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/leaflet.sync@0.2.4/L.Map.Sync.min.js"></script>
 </head>
 
 <body class="helvetica">
@@ -64,7 +64,8 @@
       inertia: false,
       center: [41.308, -72.924],
       zoom: 13,
-      minZoom: 13,
+      minZoom: 12,
+      maxZoom: 17,
       scrollWheelZoom: 'center',
       attributionControl: false,
       preferCanvas: true
@@ -94,7 +95,8 @@
   
       return d.toLocaleDateString('en-US', {
         year: 'numeric',
-        month: 'short',
+        month: 'long',
+        day: "2-digit"
       });
     }
 
@@ -109,7 +111,7 @@
 
         var data = result.data;
 
-        var heat = L.heatLayer( [], { radius: 20, blur: 10, } ).addTo(map);
+        var heat = L.heatLayer( [], { radius: 12, blur: 10, gradient: {0.3: 'blue', 0.6: 'lime', 0.7: 'red', 0.8: 'black', 0.9: 'yellow'} } ).addTo(map);
         var individualPoints = L.layerGroup().addTo(map); // POIs are added here with the Leaflet layergroup function
 
         var tsCoef = 100000.0 // original timestamp needs to be multiplied by this to work in JS
@@ -141,13 +143,14 @@
         // Given `from` and `to` timestamps, updates the heatmap layer.
         var updateHeatLayer = function(from, to) {
 
-          from = dateToTS( new Date(from * 1).setHours(0,0,0,0)) / tsCoef;
-          to = dateToTS( new Date(to * 1).setHours(23,59,59,0)) / tsCoef;
 
-          // All crashes between set dates
-          var crashes = data.filter(function(point) {
-            return point.d >= from && point.d <= to;
-          })
+            from = dateToTS(new Date(from * 1).setHours(0, 0, 0, 0)) / tsCoef;
+            to = dateToTS(new Date(to * 1).setHours(23, 59, 59, 0)) / tsCoef;
+
+            // All crashes between set dates
+            var crashes = data.filter(function (point) {
+                return point.d >= from && point.d <= to;
+            })
 
           var crashesFiltered = crashes.filter(function(point) {
             return (( $('#local').prop('checked') ? point.r !== 1 : false)
@@ -157,8 +160,7 @@
               || ( $('#cyclists').prop('checked') ? point.c === 1 : false)
               || ( $('#pedestrians').prop('checked') ? point.p === 1 : false))
 
-              && (( $('#propertyDamage').prop('checked') ? point.s === 'O' : false)
-              || ( $('#injury').prop('checked') ? point.s === 'A' : false)
+              && (( $('#injury').prop('checked') ? point.s === 'A' : false)
               || ( $('#fatal').prop('checked') ? point.s === 'K' : true))
           });
 
@@ -171,34 +173,40 @@
             crashesFiltered.length
           )
 
+          // Despite zoom, clear individual points
+          individualPoints.clearLayers();
+
           // Update the heatlayer
-          var intensity = 10;
+          var intensity = 5;
+          
 
           // If zoomed in all the way, show points instead of a heatmap
-          if ( map.getZoom() >= 16 ) {
+          if ( map.getZoom() >= 15 ) {
+
             crashesFiltered.map(function(crash) {
               
               var diagramUrl = 'https://www.ctcrash.uconn.edu/MMUCCDiagram?id=' + crash.id + '&asImage=true'
 
               var circle = L.circleMarker([crash.x, crash.y], {
-                radius: 7,
+                radius: 6,
                 color: '#000000',
                 fillColor: '#FFFFFF',
                 fillOpacity: 1,
-                opacity: 0.8,
-                weight: 0,
+                opacity: 1,
+                weight: 1,
               }).bindPopup(
                 '<b>Crash ID: ' + crash.id + '</b><br>'
                   + tsToDate(crash.d * tsCoef) + ' at ' + crash.t
                   + '<a href="' + diagramUrl + '" target="_blank"><img src="' + diagramUrl + '" alt="Crash diagram" class="w-50"></a>'
                   + '<br><p>Severity: ' + (crash.s === 'K' ? 'Fatal crash' : crash.s === 'A' ? 'Suspected Serious Injury' : 'Property damage only'
                   + '<br><p>Trafficway Ownership: ' + crash.s ==='' ? 'Public road' : 'Other')
-                  + '<br>Motor vehicle was driving on: ' + crash.o + (crash.u === null ? '' : ' and the nearest cross-street is ' + crash.u ),
+                  + '<br><p>Motor vehicle was driving on: ' + crash.o + (crash.u === null ? '' : ' and the nearest cross-street is ' + crash.u + '</p>'),
                 { minWidth: 300 }
               )
-              
-              individualPoints.addLayer(circle);})
-            }
+              individualPoints.addLayer(circle);
+            })
+            
+          }
           // Zoomed out enough for a heatmap
           else {
             heat.setLatLngs(
@@ -222,7 +230,7 @@
           
           prettify: tsToDate,
           skin: "big",
-          grid: false,
+          grid: true,
 
           onChange: function(sliderData) {
             updateHeatLayer(sliderData.from, sliderData.to);
@@ -231,18 +239,18 @@
 
         // Re-draw heat layer when any filter (apart from street labels)
         // is changed
-        $('#filters input').not('#labels').change(function(e) {
-          updateHeatLayer(
-            slider[0].value.split(';')[0],
-            slider[0].value.split(';')[1]
-          )
+        $('#filters input').not('#labels').change(function (e) {
+            updateHeatLayer(
+                slider[0].value.split(';')[0],
+                slider[0].value.split(';')[1]
+            )
         })
 
-        map.on('zoomend', function() {
-          updateHeatLayer(
-            slider[0].value.split(';')[0],
-            slider[0].value.split(';')[1]
-          )
+        map.on('zoomend', function () {
+            updateHeatLayer(
+                slider[0].value.split(';')[0],
+                slider[0].value.split(';')[1]
+            )
         })
 
         // Set default properties
