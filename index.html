@@ -20,7 +20,7 @@
 
 <body class="helvetica">
 
-  <div id="filters" class="absolute bg-white pa3" style="z-index:999">
+  <div id="filters" class="absolute bg-white o-70 pa3" style="z-index:999">
     <p class="f5 mb1">Crash Participants:</p>
     <label class="f7 mb1">
       <input type="checkbox" id="pedestrians"> Pedestrians <br>
@@ -51,7 +51,7 @@
       <p class="fw2" id="statsText"></p>
     </div>
 
-  <div id="legend" class="bg-white w-100 mt1 mb1" >
+  <div id="legend" class="w-100 mt1 mb1" >
     <form class="ph2 ml3 mr3">
       <input type="text" class="js-range-slider" name="dates" value="" />
     </form>
@@ -222,7 +222,7 @@
           
           prettify: tsToDate,
           skin: "big",
-          grid: true,
+          grid: false,
 
           onChange: function(sliderData) {
             updateHeatLayer(sliderData.from, sliderData.to);
