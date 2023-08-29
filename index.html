@@ -16,58 +16,58 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/ion-rangeslider/2.3.1/js/ion.rangeSlider.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/leaflet.sync@0.2.4/L.Map.Sync.js"></script>   
-  <style>
-    h1 h2 h3 h4 h5 {
-      font-family:Avenir Next
-    }
-  </style>
 </head>
 
 <body class="helvetica">
 
-  <div>
-
-    <div id="legend" class="bg-white w-100 mt1 mb1" >
-      <form class="ph2 ml3 mr3">
-        <input type="text" class="js-range-slider" name="dates" value="" />
-      </form>
-    </div>
-
-    <div id="filters" class="fl w-20">
-      <div id="filtersContent" class = "ml2">
-
-        <p class="f5 mt3 mb1">Crash Participants</p>
-        <label class="f7 mb1">
-          <input type="checkbox" id="pedestrians"> Pedestrians <br>
-        </label>
-        
-        <label class="f7 mb1">
-          <input type="checkbox" id="cyclists" > Cyclists
-        </label>
-
-        <p class="f5 mb1">Impact</p>
-        <label class="f7 mb1">
-          <input type="checkbox" id="fatal"> Fatal <br>
-        </label>
-
-        <p class="f5 mb1">Roads</p>
-      <label class="f7 mb1">
-        <input type="checkbox" id="local"> Local <br>
-      </label>
-      <label class="f7 mb1">
-        <input type="checkbox" id="highways"> Highways
-      </label>
-    </div>
+  <div class="mw9 mt2">
+    <div class="cf ph2-ns">
+      <div class="fl w-20 w-half-ns">
+        <div id="filters" class="mr2">
+          <div id="filtersContent">
     
+            <p class="f5 mb1">Crash Participants:</p>
+            <label class="f7 mb1">
+              <input type="checkbox" id="pedestrians"> Pedestrians <br>
+            </label>
+            
+            <label class="f7 mb1">
+              <input type="checkbox" id="cyclists" > Cyclists
+            </label>
+    
+            <p class="f5 mb1">Impact:</p>
+            <label class="f7 mb1">
+              <input type="checkbox" id="fatal"> Fatal <br>
+            </label>
+    
+            <p class="f5 mb1">Roads:</p>
+          <label class="f7 mb1">
+            <input type="checkbox" id="local"> Local <br>
+          </label>
+          <label class="f7 mb1">
+            <input type="checkbox" id="highways"> Highways
+          </label>
+        </div>
+      </div>
+      </div>
+      <div class="fl w-60">
+        <div id="map" class="flex fl w-100 vh-75 bg-near-white mt3"></div>
+      </div>
+      <div class="fl w-20 w-half-ns">
+        <div id="statsBox" class="ml1" >
+          <p class="fw2" id="statsText"></p>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <div id="map" class="fl mt3 ml2 mr2 w-60 pa2 vh-75 bg-near-white "></div>
 
-  <div id="statsBox" >
-    <p class="fw2 mr3" id="statsText"></p>
+
+  <div id="legend" class="bg-white w-100 mt1 mb1" >
+    <form class="ph2 ml3 mr3">
+      <input type="text" class="js-range-slider" name="dates" value="" />
+    </form>
   </div>
-
-
 
   <script>
 
@@ -226,15 +226,15 @@
         var slider = $(".js-range-slider").ionRangeSlider({
           type: 'double',
 
-          min: dateToTS(new Date(2015, 0, 1)),
-          max: dateToTS(new Date(2023, 7, 1)),
+          min: dateToTS(new Date(2015, 0)),
+          max: dateToTS(new Date(2023, 6)),
 
           from: initFrom,
           to: initTo,
           
           prettify: tsToDate,
+          skin: "big",
           grid: true,
-          grid_num: 30,
 
           onChange: function(sliderData) {
             updateHeatLayer(sliderData.from, sliderData.to);
