@@ -20,48 +20,36 @@
 
 <body class="helvetica">
 
-  <div class="mw9 mt2">
-    <div class="cf ph2-ns">
-      <div class="fl w-20 w-half-ns">
-        <div id="filters" class="mr2">
-          <div id="filtersContent">
+  <div id="filters" class="absolute bg-white pa3" style="z-index:999">
+    <p class="f5 mb1">Crash Participants:</p>
+    <label class="f7 mb1">
+      <input type="checkbox" id="pedestrians"> Pedestrians <br>
+    </label>
     
-            <p class="f5 mb1">Crash Participants:</p>
-            <label class="f7 mb1">
-              <input type="checkbox" id="pedestrians"> Pedestrians <br>
-            </label>
-            
-            <label class="f7 mb1">
-              <input type="checkbox" id="cyclists" > Cyclists
-            </label>
-    
-            <p class="f5 mb1">Impact:</p>
-            <label class="f7 mb1">
-              <input type="checkbox" id="fatal"> Fatal <br>
-            </label>
-    
-            <p class="f5 mb1">Roads:</p>
-          <label class="f7 mb1">
-            <input type="checkbox" id="local"> Local <br>
-          </label>
-          <label class="f7 mb1">
-            <input type="checkbox" id="highways"> Highways
-          </label>
-        </div>
-      </div>
-      </div>
-      <div class="fl w-60">
-        <div id="map" class="flex fl w-100 vh-75 bg-near-white mt3"></div>
-      </div>
-      <div class="fl w-20 w-half-ns">
-        <div id="statsBox" class="ml1" >
-          <p class="fw2" id="statsText"></p>
-        </div>
-      </div>
-    </div>
+    <label class="f7 mb1">
+      <input type="checkbox" id="cyclists" > Cyclists
+    </label>
+    <p class="f5 mb1">Impact:</p>
+    <label class="f7 mb1">
+      <input type="checkbox" id="fatal"> Fatal <br>
+    </label>
+    <p class="f5 mb1">Roads:</p>
+    <label class="f7 mb1">
+    <input type="checkbox" id="local"> Local <br>
+    </label>
+    <label class="f7 mb1">
+      <input type="checkbox" id="highways"> Highways
+    </label>
   </div>
 
+  <div class="fl w-100">
+    <div id="map" class="vh-75 bg-near-white mt3"></div>
+  </div>
 
+  <div class="fl w-auto">
+    <div id="statsBox" class="ml2" >
+      <p class="fw2" id="statsText"></p>
+    </div>
 
   <div id="legend" class="bg-white w-100 mt1 mb1" >
     <form class="ph2 ml3 mr3">
@@ -202,7 +190,7 @@
               }).bindPopup(
                 '<b>Crash ID: ' + crash.id + '</b><br>'
                   + tsToDate(crash.d * tsCoef) + ' at ' + crash.t
-                  + '<a href="' + diagramUrl + '" target="_blank"><img src="' + diagramUrl + '" alt="Crash diagram"></a>'
+                  + '<a href="' + diagramUrl + '" target="_blank"><img src="' + diagramUrl + '" alt="Crash diagram" class="w-50"></a>'
                   + '<br><p>Severity: ' + (crash.s === 'K' ? 'Fatal crash' : crash.s === 'A' ? 'Suspected Serious Injury' : 'Property damage only'
                   + '<br><p>Trafficway Ownership: ' + crash.s ==='' ? 'Public road' : 'Other')
                   + '<br>Motor vehicle was driving on: ' + crash.o + (crash.u === null ? '' : ' and the nearest cross-street is ' + crash.u ),
