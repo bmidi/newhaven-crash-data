@@ -2,85 +2,82 @@
 
 <html lang="en">
 <head>
+  <title>Motor Vehicle Crashes in New Haven Resulting in Serious Injury or Death</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <title>New Haven Crash Map</title>
-
-  <meta name="description" content="Interactive heatmap of car crashes in New Haven.">
-  <meta name="author" content="Ben Midyette, adapted from a project by Picturedigits">
-
+  <meta name="description" content="Motor Vehicle Crashes in New Haven Resulting in Serious Injury or Death.">
   <link rel="icon" type="image/png" href="./img/favicon.png">
-
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tachyons/4.11.1/tachyons.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.6.0/leaflet.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ion-rangeslider/2.3.1/css/ion.rangeSlider.min.css"/>
-
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.0/papaparse.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.6.0/leaflet.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.heat/0.2.0/leaflet-heat.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/ion-rangeslider/2.3.1/js/ion.rangeSlider.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/leaflet.sync@0.2.4/L.Map.Sync.js"></script>
-        
+  <script src="https://cdn.jsdelivr.net/npm/leaflet.sync@0.2.4/L.Map.Sync.js"></script>   
+  <style>
+    h1 h2 h3 h4 h5 {
+      font-family:Avenir Next
+    }
+  </style>
 </head>
 
 <body class="helvetica">
 
-  <div class="fixed bottom-0 left-0 mb1 ml2" style="z-index: 999">
-    <a href="https://www.picturedigits.com" class="dim ml1">
-      <img src="./img/picturedigits.png" alt="Picturedigits" class="o-70 w4"></a>
-  </div>
+  <div>
 
-  <div id="map" class="vh-100 vw-100 bg-near-white"></div>
+    <div id="legend" class="bg-white w-100 mt1 mb1" >
+      <form class="ph2 ml3 mr3">
+        <input type="text" class="js-range-slider" name="dates" value="" />
+      </form>
+    </div>
 
-  <div id="legend" class="bg-white fixed top-0 left-0 pa3 mt2 ml2 br1 o-90" style="z-index: 999; width: 450px">
-    <h1 class="f3 mt0">New Haven Crash Map</h1>
-    <p>Motor Vehicle Crashes Resulting in Injury or Death</p>
+    <div id="filters" class="fl w-20">
+      <div id="filtersContent" class = "ml2">
 
-
-    <form class="ph2">
-      <input type="text" class="js-range-slider" name="dates" value="" />
-
-      <p class="f6 measure" id="statsText"></p>
-
-      <div id="filters" class="mt3 f6">
-
-        <h5 class="f5 mb1 mt3">Crash Participants</h5>
-
-        <label>
-          <input type="checkbox" id="pedestrians"> Pedestrians
+        <p class="f5 mt3 mb1">Crash Participants</p>
+        <label class="f7 mb1">
+          <input type="checkbox" id="pedestrians"> Pedestrians <br>
         </label>
-
-        <label>
+        
+        <label class="f7 mb1">
           <input type="checkbox" id="cyclists" > Cyclists
         </label>
 
-        <h5 class="f5 mb1 mt3">Impact</h5>
-        <label>
-          <input type="checkbox" id="fatal"> Fatal
+        <p class="f5 mb1">Impact</p>
+        <label class="f7 mb1">
+          <input type="checkbox" id="fatal"> Fatal <br>
         </label>
 
-        <h5 class="f5 mb1 mt3">Roads</h5>
-        <label>
-          <input type="checkbox" id="local"> Local
-        </label>
-        <label>
-          <input type="checkbox" id="highways" class="ml2"> Highways
-        </label>
-      </div>
-
-    </form>
- 
+        <p class="f5 mb1">Roads</p>
+      <label class="f7 mb1">
+        <input type="checkbox" id="local"> Local <br>
+      </label>
+      <label class="f7 mb1">
+        <input type="checkbox" id="highways"> Highways
+      </label>
+    </div>
+    
   </div>
+
+  <div id="map" class="fl mt3 ml2 mr2 w-60 pa2 vh-75 bg-near-white "></div>
+
+  <div id="statsBox" >
+    <p class="fw2 mr3" id="statsText"></p>
+  </div>
+
+
 
   <script>
 
     var map = L.map('map', {
-      zoomControl: true,
+      zoomControl: false,
+      inertia: false,
       center: [41.308, -72.924],
-      zoom: 14,
-      minZoom: 12,
+      zoom: 13,
+      minZoom: 13,
+      scrollWheelZoom: 'center',
       attributionControl: false,
       preferCanvas: true
     })
@@ -110,11 +107,10 @@
       return d.toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'short',
-        day: 'numeric'
       });
     }
 
-    var initFrom = dateToTS( new Date(2017, 0, 1) );
+    var initFrom = dateToTS( new Date(2015, 0, 1) );
     var initTo = dateToTS( new Date(2023, 7, 23) );
 
     Papa.parse('./data/crashes.csv', {
@@ -126,26 +122,26 @@
         var data = result.data;
 
         var heat = L.heatLayer( [], { radius: 20, blur: 10, } ).addTo(map);
-        var individualPoints = L.layerGroup().addTo(map);
+        var individualPoints = L.layerGroup().addTo(map); // POIs are added here with the Leaflet layergroup function
 
         var tsCoef = 100000.0 // original timestamp needs to be multiplied by this to work in JS
 
         var updateStatsText = function(formattedFrom, formattedTo, crashesTotal, crashesPed, crashesCyc, filtered) {
           var text = formattedFrom === formattedTo
-            ? ('On ' + formattedFrom)
-            : ('From ' + formattedFrom + ' to ' + formattedTo)
+            ? ('On '+ formattedFrom)
+            : ('From <span class="fw4">'  + formattedFrom + ' </span> to  <span class="fw4">' + formattedTo + "</span>")
 
-          text += ', there ' + (crashesTotal === 1 ? 'was ' : 'were ') + (crashesTotal === 0 ? 'no' : crashesTotal.toLocaleString())
-          text += ' dangerous motor vehicle crash' + (crashesTotal === 1 ? '' : 'es') + ' in or around New Haven.'
+          text += ', there ' + (crashesTotal === 1 ? 'was ' : 'were  <span class="fw4" style="color:darkred">') + (crashesTotal === 0 ? 'no' : crashesTotal.toLocaleString())
+          text += ' dangerous motor vehicle crash' + (crashesTotal === 1 ? '' : 'es') + '</span> in or around <b>New Haven</b>.'
 
           if (crashesTotal > 1) {
-            text += ' Of those, ' + (crashesPed > 0 ? crashesPed.toLocaleString() : ' none');
-            text += ' involved a pedestrian, and ';
+            text += ' Of those, <span class="fw4">' + (crashesPed > 0 ? crashesPed.toLocaleString() : ' none');
+            text += ' involved a pedestrian</span>, and <span class="fw4">';
             text += (crashesCyc > 0 ? crashesCyc.toLocaleString() : ' none');
-            text += ' involved a cyclist.';
+            text += ' involved a cyclist.</span>';
           }
 
-          text += '<span style="font-weight:bold;color:darkgreen;" class="i ' + (filtered ? '' : 'red') + '"><br><br>'
+          text += '<span style="color:darkgreen;" class="i fw4' + (filtered ? '' : 'red') + '"><br><br>'
             + (filtered ? filtered.toLocaleString() : 'No ') + ' crash'
             + (filtered === 1 ? '' : 'es') + ' satisf' + (filtered === 1 ? 'ies' : 'y')
             + ' your filtering criteria.</span>'
@@ -187,29 +183,29 @@
             crashesFiltered.length
           )
 
-
-
           // Update the heatlayer
           var intensity = 10;
 
           // If zoomed in all the way, show points instead of a heatmap
           if ( map.getZoom() >= 16 ) {
             crashesFiltered.map(function(crash) {
+              
               var diagramUrl = 'https://www.ctcrash.uconn.edu/MMUCCDiagram?id=' + crash.id + '&asImage=true'
 
               var circle = L.circleMarker([crash.x, crash.y], {
                 radius: 7,
                 color: '#000000',
                 fillColor: '#FFFFFF',
-                fillOpacity: 0.8,
+                fillOpacity: 1,
                 opacity: 0.8,
                 weight: 0,
               }).bindPopup(
-                '<b>Crash ID ' + crash.id + '</b><br>'
+                '<b>Crash ID: ' + crash.id + '</b><br>'
                   + tsToDate(crash.d * tsCoef) + ' at ' + crash.t
                   + '<a href="' + diagramUrl + '" target="_blank"><img src="' + diagramUrl + '" alt="Crash diagram"></a>'
-                  + '<br>Severity: ' + (crash.s === 'K' ? 'Fatal crash' : crash.s === 'A' ? 'Injury of any type' : 'Property damage only'
-                  + '<br>Trafficway Ownership: ' + crash.s ==='' ? 'Public road' : 'Other'),
+                  + '<br><p>Severity: ' + (crash.s === 'K' ? 'Fatal crash' : crash.s === 'A' ? 'Suspected Serious Injury' : 'Property damage only'
+                  + '<br><p>Trafficway Ownership: ' + crash.s ==='' ? 'Public road' : 'Other')
+                  + '<br>Motor vehicle was driving on: ' + crash.o + (crash.u === null ? '' : ' and the nearest cross-street is ' + crash.u ),
                 { minWidth: 300 }
               )
               
@@ -220,18 +216,17 @@
             heat.setLatLngs(
               crashesFiltered.map(function(point) {
                 return [point.x, point.y, intensity];
-              })
+                }
+              )
             )
           }
-
         }
-
 
         // Initialize Ion range slider
         var slider = $(".js-range-slider").ionRangeSlider({
           type: 'double',
 
-          min: dateToTS(new Date(2017, 0, 1)),
+          min: dateToTS(new Date(2015, 0, 1)),
           max: dateToTS(new Date(2023, 7, 1)),
 
           from: initFrom,
@@ -239,13 +234,12 @@
           
           prettify: tsToDate,
           grid: true,
-          grid_num: 4,
+          grid_num: 30,
 
           onChange: function(sliderData) {
             updateHeatLayer(sliderData.from, sliderData.to);
           }
         });
-
 
         // Re-draw heat layer when any filter (apart from street labels)
         // is changed
