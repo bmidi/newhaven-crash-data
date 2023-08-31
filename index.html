@@ -29,9 +29,9 @@
     <label class="f7 mb1">
       <input type="checkbox" id="cyclists" > Cyclists
     </label>
-    <p class="f5 mb1">Impact:</p>
+    <p class="f5 mb1">Fatal:</p>
     <label class="f7 mb1">
-      <input type="checkbox" id="fatal"> Fatal <br>
+      <input type="checkbox" id="fatal"> True <br>
     </label>
     <p class="f5 mb1">Roads:</p>
     <label class="f7 mb1">
@@ -40,6 +40,11 @@
     <label class="f7 mb1">
       <input type="checkbox" id="highways"> Highways
     </label>
+    <p class="f5 mb1">Bike Lane Present:</p>
+    <label class="f7 mb1">
+      <input type="checkbox" id="bikelane"> True
+    </label>
+
   </div>
 
   <div class="fl w-100">
@@ -82,7 +87,7 @@
     var labels = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png', {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
       subdomains: 'abcd',
-      maxZoom: 19,
+      maxZoom: 20,
       pane: 'shadowPane'  // always display on top
     }).addTo(map)
 
@@ -95,8 +100,7 @@
   
       return d.toLocaleDateString('en-US', {
         year: 'numeric',
-        month: 'long',
-        day: "2-digit"
+        month: 'short',
       });
     }
 
@@ -111,27 +115,28 @@
 
         var data = result.data;
 
-        var heat = L.heatLayer( [], { radius: 12, blur: 10, gradient: {0.3: 'blue', 0.6: 'lime', 0.7: 'red', 0.8: 'black', 0.9: 'yellow'} } ).addTo(map);
+        var heat = L.heatLayer( [], { radius: 12, blur: 10, gradient: {0.4: 'blue', 0.6: 'lime', 0.7: 'yellow', 0.8: 'red', 1: 'black'} } ).addTo(map);
         var individualPoints = L.layerGroup().addTo(map); // POIs are added here with the Leaflet layergroup function
 
         var tsCoef = 100000.0 // original timestamp needs to be multiplied by this to work in JS
 
-        var updateStatsText = function(formattedFrom, formattedTo, crashesTotal, crashesPed, crashesCyc, filtered) {
+        var updateStatsText = function(formattedFrom, formattedTo, crashesTotal, crashesPed, crashesCyc, crashesFatal, filtered) {
           var text = formattedFrom === formattedTo
             ? ('On '+ formattedFrom)
             : ('From <span class="fw4">'  + formattedFrom + ' </span> to  <span class="fw4">' + formattedTo + "</span>")
 
-          text += ', there ' + (crashesTotal === 1 ? 'was ' : 'were  <span class="fw4" style="color:darkred">') + (crashesTotal === 0 ? 'no' : crashesTotal.toLocaleString())
+          text += ', there ' + (crashesTotal === 1 ? 'was ' : 'were  <span class="dark-red fw5">') + (crashesTotal === 0 ? 'no' : crashesTotal.toLocaleString())
           text += ' dangerous motor vehicle crash' + (crashesTotal === 1 ? '' : 'es') + '</span> in or around <b>New Haven</b>.'
 
           if (crashesTotal > 1) {
-            text += ' Of those, <span class="fw4">' + (crashesPed > 0 ? crashesPed.toLocaleString() : ' none');
-            text += ' involved a pedestrian</span>, and <span class="fw4">';
+            text += ' Of those, <span class="dark-pink fw5">' + (crashesPed > 0 ? crashesPed.toLocaleString() : ' none');
+            text += ' involved a pedestrian</span>, and <span class="dark-blue fw5">';
             text += (crashesCyc > 0 ? crashesCyc.toLocaleString() : ' none');
             text += ' involved a cyclist.</span>';
+            text += ' <span class="dark-red fw6 bb"> ' + crashesFatal + ' crashes were fatal.</span>';
           }
 
-          text += '<span style="color:darkgreen;" class="i fw4' + (filtered ? '' : 'red') + '"><br><br>'
+          text += '<span class="i dark-green fw5' + (filtered ? '' : 'red') + '"><br><br>'
             + (filtered ? filtered.toLocaleString() : 'No ') + ' crash'
             + (filtered === 1 ? '' : 'es') + ' satisf' + (filtered === 1 ? 'ies' : 'y')
             + ' your filtering criteria.</span>'
@@ -162,6 +167,8 @@
 
               && (( $('#injury').prop('checked') ? point.s === 'A' : false)
               || ( $('#fatal').prop('checked') ? point.s === 'K' : true))
+
+              && (( $('#bikelane').prop('checked') ? point.v === 'True' : true))
           });
 
           updateStatsText(
@@ -170,6 +177,7 @@
             crashes.length, // Total crashes
             crashes.filter(function(p) {return p.p === 1}).length,  // Ped crashes
             crashes.filter(function(p) {return p.c === 1}).length,  // Cyc crashes
+            crashes.filter(function(p) {return p.s === 'K'}).length,
             crashesFiltered.length
           )
 
@@ -188,20 +196,21 @@
               var diagramUrl = 'https://www.ctcrash.uconn.edu/MMUCCDiagram?id=' + crash.id + '&asImage=true'
 
               var circle = L.circleMarker([crash.x, crash.y], {
-                radius: 6,
+                radius: 7,
                 color: '#000000',
                 fillColor: '#FFFFFF',
                 fillOpacity: 1,
                 opacity: 1,
-                weight: 1,
+                weight: 2,
               }).bindPopup(
                 '<b>Crash ID: ' + crash.id + '</b><br>'
                   + tsToDate(crash.d * tsCoef) + ' at ' + crash.t
                   + '<a href="' + diagramUrl + '" target="_blank"><img src="' + diagramUrl + '" alt="Crash diagram" class="w-50"></a>'
                   + '<br><p>Severity: ' + (crash.s === 'K' ? 'Fatal crash' : crash.s === 'A' ? 'Suspected Serious Injury' : 'Property damage only'
                   + '<br><p>Trafficway Ownership: ' + crash.s ==='' ? 'Public road' : 'Other')
-                  + '<br><p>Motor vehicle was driving on: ' + crash.o + (crash.u === null ? '' : ' and the nearest cross-street is ' + crash.u + '</p>'),
-                { minWidth: 300 }
+                  + '<br><p>Motor vehicle was driving on: <b>' + crash.o + (crash.h === null ? '</b>' : '</b> and the nearest cross-street is <b>' + crash.h + '</b></p>')
+                  + '<p><b>There was ' + (crash.v === 'True' ? 'a bike lane ' : 'no bike lane ') + 'present.</b></p>',                
+                  { minWidth: 300 }
               )
               individualPoints.addLayer(circle);
             })
