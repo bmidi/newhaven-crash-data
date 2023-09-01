@@ -51,16 +51,10 @@
       <input type="checkbox" id="crashesHitAndRun"> True
     </label>
   </div>
-  
-  <div class=" w-100">
-    <div id="map" class="mb3 vh-75 bg-near-white"></div>
-  </div>
 
-  <div class="w-80 center mt3">
-    <div id="statsBox" class="" >
-      <p class="fw2" id="statsText"></p>
-    </div>
-  </div>
+  <div class=" w-100"><div id="map" class="mb3 vh-75 bg-near-white"></div></div>
+
+  <div class="w-80 center mt3"><div id="statsBox" class="" ><p class="fw2" id="statsText"></p></div></div>
 
   <div id="legend" class="w-80 center mt1 mb1">
     <form class="ph2 ml3 mr3">
@@ -83,7 +77,6 @@
     })
 
     L.control.zoom({position: 'topright'}).addTo(map)
-
 
     L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
