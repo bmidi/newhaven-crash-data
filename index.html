@@ -7,7 +7,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Motor Vehicle Crashes in New Haven Resulting in Serious Injury or Death.">
   <link rel="icon" type="image/png" href="./img/favicon.png">
-
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tachyons/4.11.1/tachyons.min.css" integrity="sha512-d0v474klOFSF7qD9WDvyRxAvXaWSxCHDZdnBSZQjo8BpVr6vpjwAgqetpqkKP38DzlOzdVPaLVnzzW1Ba8wB9w==" crossorigin="anonymous" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.min.css" integrity="sha512-1xoFisiGdy9nvho8EgXuXvnpR5GAMSjFwp40gSRE3NwdUdIMIKuPa7bqoUhLD0O/5tPNhteAsE5XyyMi5reQVA==" crossorigin="anonymous" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ion-rangeslider/2.3.1/css/ion.rangeSlider.min.css" integrity="sha512-NWCafukXClS6fKch6bSMl/WvPzZrD1OGMf1oMAnFYXSSKZ7hgeswls+r4SdK4bFJauVwmvFf7HlMwji2TsjROA==" crossorigin="anonymous" />  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js" integrity="sha512-rKFvwjvE4liWPlFnvH4ZhRDfNZ9FOpdkD/BU5gAIA3VS3vOQrQ5BjKgbO3kxebKhHdHcNUHLqxQYSoxee9UwgA==" crossorigin="anonymous"></script>
@@ -20,12 +19,11 @@
 
 <body class="helvetica">
 
-  <div id="filters" class="absolute bg-white o-70 pa3" style="z-index:999">
-    <p class="f5 mb1">Crash Participants:</p>
+  <div id="filters" class="absolute bg-white o-70 pa2" style="z-index:999">
+    <p class="f5 mb1 mt0">Crash Participants:</p>
     <label class="f7 mb1">
       <input type="checkbox" id="pedestrians"> Pedestrians <br>
     </label>
-    
     <label class="f7 mb1">
       <input type="checkbox" id="cyclists" > Cyclists
     </label>
@@ -44,19 +42,27 @@
     <label class="f7 mb1">
       <input type="checkbox" id="bikelane"> True
     </label>
-
+    <br>
+    <label class="f7 mb1">
+      <input type="checkbox" id="bikelaneshow"> Show bike lanes
+    </label>
+    <p class="f5 mb1">Hit and Run Status:</p>
+    <label class="f7 mb1">
+      <input type="checkbox" id="crashesHitAndRun"> True
+    </label>
+  </div>
+  
+  <div class=" w-100">
+    <div id="map" class="mb3 vh-75 bg-near-white"></div>
   </div>
 
-  <div class="fl w-100">
-    <div id="map" class="vh-75 bg-near-white mt3"></div>
-  </div>
-
-  <div class="fl w-auto">
-    <div id="statsBox" class="ml2" >
+  <div class="w-80 center mt3">
+    <div id="statsBox" class="" >
       <p class="fw2" id="statsText"></p>
     </div>
+  </div>
 
-  <div id="legend" class="w-100 mt1 mb1" >
+  <div id="legend" class="w-80 center mt1 mb1">
     <form class="ph2 ml3 mr3">
       <input type="text" class="js-range-slider" name="dates" value="" />
     </form>
@@ -64,7 +70,7 @@
 
   <script>
 
-    var map = L.map('map', {
+    let map = L.map('map', {
       zoomControl: false,
       inertia: false,
       center: [41.308, -72.924],
@@ -78,25 +84,44 @@
 
     L.control.zoom({position: 'topright'}).addTo(map)
 
+
     L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
       subdomains: 'abcd',
       maxZoom: 19
     }).addTo(map)
 
-    var labels = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png', {
+    let labels = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png', {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
       subdomains: 'abcd',
       maxZoom: 19,
       pane: 'shadowPane'  // always display on top
     }).addTo(map)
 
+    let CartoDB_VoyagerLabelsUnder = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png', {
+  	attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+  	subdomains: 'abcd',
+  	maxZoom: 20
+    }).addTo(map);
+    
+    let WaymarkedTrails_cycling = L.tileLayer('https://tile.waymarkedtrails.org/cycling/{z}/{x}/{y}.png', {
+      	attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors | Map style: &copy; <a href="https://waymarkedtrails.org">waymarkedtrails.org</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
+    })
+
+    $('#bikelaneshow').change(function() { // if the bikelaneshow checkbox is checked (event change)
+      if ($(this).prop('checked')) {
+          WaymarkedTrails_cycling.addTo(map); // add the layer
+      } else {
+          WaymarkedTrails_cycling.remove(); // remove the layer
+        }
+    });
+        
     function dateToTS(date) {
       return date.valueOf();
     }
     
     function tsToDate(ts) {
-      var d = new Date(ts);
+      let d = new Date(ts);
   
       return d.toLocaleDateString('en-US', {
         year: 'numeric',
@@ -104,8 +129,8 @@
       });
     }
 
-    var initFrom = dateToTS( new Date(2015, 0, 1) );
-    var initTo = dateToTS( new Date(2023, 7, 23) );
+    let initFrom = dateToTS( new Date(2015, 0, 1) );
+    let initTo = dateToTS( new Date(2023, 7, 23) );
 
     Papa.parse('./data/crashes.csv', {
       download: true,
@@ -113,19 +138,20 @@
       dynamicTyping: true,
       complete: function(result) {
 
-        var data = result.data;
+        let data = result.data;
 
-        var heat = L.heatLayer( [], { radius: 12, blur: 10, gradient: {0.4: 'blue', 0.6: 'lime', 0.7: 'yellow', 0.8: 'red', 1: 'black'} } ).addTo(map);
-        var individualPoints = L.layerGroup().addTo(map); // POIs are added here with the Leaflet layergroup function
+        let heat = L.heatLayer( [], { radius: 12, blur: 10, maxZoom: 17, gradient: {0.4: 'blue', 0.6: 'lime', 0.7: 'yellow', 0.8: 'red', 1: 'black'} } ).addTo(map);
 
-        var tsCoef = 100000.0 // original timestamp needs to be multiplied by this to work in JS
+        let individualPoints = L.layerGroup().addTo(map); // POIs are added here with the Leaflet layergroup function
 
-        var updateStatsText = function(formattedFrom, formattedTo, crashesTotal, crashesPed, crashesCyc, crashesFatal, filtered) {
-          var text = formattedFrom === formattedTo
+        let tsCoef = 100000.0 // original timestamp needs to be multiplied by this to work in JS
+
+        let updateStatsText = function(formattedFrom, formattedTo, crashesTotal, crashesPed, crashesCyc, crashesHitAndRun, crashesFatal, filtered) {
+          let text = formattedFrom === formattedTo
             ? ('On '+ formattedFrom)
             : ('From <span class="fw4">'  + formattedFrom + ' </span> to  <span class="fw4">' + formattedTo + "</span>")
 
-          text += ', there ' + (crashesTotal === 1 ? 'was ' : 'were  <span class="dark-red fw5">') + (crashesTotal === 0 ? 'no' : crashesTotal.toLocaleString())
+          text += ', there ' + (crashesTotal === 1 ? 'was ' : 'were  <span class="orange fw5">') + (crashesTotal === 0 ? 'no' : crashesTotal.toLocaleString())
           text += ' dangerous motor vehicle crash' + (crashesTotal === 1 ? '' : 'es') + '</span> in or around <b>New Haven</b>.'
 
           if (crashesTotal > 1) {
@@ -133,6 +159,7 @@
             text += ' involved a pedestrian</span>, and <span class="dark-blue fw5">';
             text += (crashesCyc > 0 ? crashesCyc.toLocaleString() : ' none');
             text += ' involved a cyclist.</span>';
+            text += ' <span class="fw4">' + crashesHitAndRun + ' crashes were hit and runs.</span>';
             text += ' <span class="dark-red fw6 bb"> ' + crashesFatal + ' crashes were fatal.</span>';
           }
 
@@ -146,18 +173,17 @@
         }
 
         // Given `from` and `to` timestamps, updates the heatmap layer.
-        var updateHeatLayer = function(from, to) {
-
+        let updateHeatLayer = function(from, to) {
 
             from = dateToTS(new Date(from * 1).setHours(0, 0, 0, 0)) / tsCoef;
             to = dateToTS(new Date(to * 1).setHours(23, 59, 59, 0)) / tsCoef;
 
             // All crashes between set dates
-            var crashes = data.filter(function (point) {
+            let crashes = data.filter(function (point) {
                 return point.d >= from && point.d <= to;
             })
 
-          var crashesFiltered = crashes.filter(function(point) {
+          let crashesFiltered = crashes.filter(function(point) {
             return (( $('#local').prop('checked') ? point.r !== 1 : false)
               || ( $('#highways').prop('checked') ? point.r === 1 : false))
 
@@ -168,8 +194,11 @@
               && (( $('#injury').prop('checked') ? point.s === 'A' : false)
               || ( $('#fatal').prop('checked') ? point.s === 'K' : true))
 
-              && (( $('#bikelane').prop('checked') ? point.v === 'True' : true)
-              || ( $('#bikelane').prop('unchecked') ? point.v !== 'True' : false))
+              && (( $('#bikelane').prop('checked') ? point.f === 'True' : true)
+              || ( !$('#bikelane').prop('checked') ? point.f !== 'True' : false))
+
+              && (( $('#crashesHitAndRun').prop('checked') ? point.v === 'True' : true)
+              || ( !$('#crashesHitAndRun').prop('checked') ? point.v !== 'True' : false))
           });
 
           updateStatsText(
@@ -178,7 +207,8 @@
             crashes.length, // Total crashes
             crashes.filter(function(p) {return p.p === 1}).length,  // Ped crashes
             crashes.filter(function(p) {return p.c === 1}).length,  // Cyc crashes
-            crashes.filter(function(p) {return p.s === 'K'}).length,
+            crashes.filter(function(p) {return p.v === 'True'}).length, // Hit and run status
+            crashes.filter(function(p) {return p.s === 'K'}).length, // Fatal crashes
             crashesFiltered.length
           )
 
@@ -186,17 +216,15 @@
           individualPoints.clearLayers();
 
           // Update the heatlayer
-          var intensity = 14;       
+          let intensity = 4;       
 
           // If zoomed in all the way, show points instead of a heatmap
-          if ( map.getZoom() < 16 ) {
-            var intensity = 12;
-          }
-          if ( map.getZoom() >= 16 ) {
-            var intensity = 2;
+          if ( map.getZoom() >= 15 ) {
+            heat.redraw()
+            let intensity = 5;
             crashesFiltered.map(function(crash) {
-              var diagramUrl = 'https://www.ctcrash.uconn.edu/MMUCCDiagram?id=' + crash.id + '&asImage=true'
-              var circle = L.circleMarker([crash.x, crash.y], {
+              let diagramUrl = 'https://www.ctcrash.uconn.edu/MMUCCDiagram?id=' + crash.id + '&asImage=true'
+              let circle = L.circleMarker([crash.x, crash.y], {
                 radius: 6,
                 color: '#000000',
                 fillColor: '#FFFFFF',
@@ -204,17 +232,19 @@
                 opacity: 1,
                 weight: 2,
               }).bindPopup(
-                '<b>Crash ID: ' + crash.id + '</b><br>'
+                '<span class="avenir"><b>Crash ID: ' + crash.id + '</b><br>'
                   + tsToDate(crash.d * tsCoef) + ' at ' + crash.t
                   + '<a href="' + diagramUrl + '" target="_blank"><img src="' + diagramUrl + '" alt="Crash diagram" class="w-50"></a>'
                   + '<br><p>Severity: ' + (crash.s === 'K' ? 'Fatal crash' : crash.s === 'A' ? 'Suspected Serious Injury' : 'Property damage only'
                   + '<br><p>Trafficway Ownership: ' + crash.s ==='' ? 'Public road' : 'Other')
                   + '<br><p>Motor vehicle was driving on: <b>' + crash.o + (crash.h === null ? '</b>' : '</b> and the nearest cross-street is <b>' + crash.h + '</b></p>')
-                  + '<p><b>There was ' + (crash.v === 'True' ? 'a bike lane ' : 'no bike lane ') + 'present.</b></p>',                
+                  + '<p><b>There was ' + (crash.f === 'True' ? 'a bike lane ' : 'no bike lane ') + 'present.</b></p>'
+                  + '</span>',
                   { minWidth: 300 }
               )
               individualPoints.addLayer(circle);
             })
+
             heat.setLatLngs(
               crashesFiltered.map(function(point) {
                 return [point.x, point.y, intensity];
@@ -232,28 +262,20 @@
             )
           }
         }
-        // Initialize Ion range slider
-        var slider = $(".js-range-slider").ionRangeSlider({
-          type: 'double',
 
+        // Initialize Ion range slider
+        let slider = $(".js-range-slider").ionRangeSlider({
+          type: 'double',
           min: dateToTS(new Date(2015, 0)),
           max: dateToTS(new Date(2023, 6)),
-
           from: initFrom,
           to: initTo,
-          
           prettify: tsToDate,
           skin: "big",
-
-          step: 10,
-          grid: true,
-          grid_snap: true,
-          grid_num: 40,
-
           onChange: function(sliderData) {
             updateHeatLayer(sliderData.from, sliderData.to);
           }
-        })
+        });
 
         // Re-draw heat layer when any filter (apart from street labels)
         // is changed
@@ -270,11 +292,11 @@
                 slider[0].value.split(';')[1]
             )
         })
-
+        
         // Set default properties
         $('#filters #pedestrians').prop('checked', 'checked');
         $('#filters #cyclists').prop('checked', 'checked');
-        $('#filters #fatal').prop('unchecked', 'checked');
+        $('#filters #fatal').prop('unchecked', 'unchecked');
         $('#filters #local').prop('checked', 'checked');
         updateHeatLayer( initFrom, initTo );
       }
