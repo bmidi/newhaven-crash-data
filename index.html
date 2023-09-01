@@ -126,6 +126,7 @@
       return d.toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'short',
+        day:"2-digit",
       });
     }
 
@@ -232,13 +233,13 @@
                 opacity: 1,
                 weight: 2,
               }).bindPopup(
-                '<span class="avenir"><b>Crash ID: ' + crash.id + '</b><br>'
+                '<span class="avenir">Crash ID: ' + crash.id + '<br>'
                   + tsToDate(crash.d * tsCoef) + ' at ' + crash.t
                   + '<a href="' + diagramUrl + '" target="_blank"><img src="' + diagramUrl + '" alt="Crash diagram" class="w-50"></a>'
                   + '<br><p>Severity: ' + (crash.s === 'K' ? 'Fatal crash' : crash.s === 'A' ? 'Suspected Serious Injury' : 'Property damage only'
                   + '<br><p>Trafficway Ownership: ' + crash.s ==='' ? 'Public road' : 'Other')
-                  + '<br><p>Motor vehicle was driving on: <b>' + crash.o + (crash.h === null ? '</b>' : '</b> and the nearest cross-street is <b>' + crash.h + '</b></p>')
-                  + '<p><b>There was ' + (crash.f === 'True' ? 'a bike lane ' : 'no bike lane ') + 'present.</b></p>'
+                  + '<br><p>Motor vehicle was driving on: ' + crash.o + (crash.h === null ? '' : ' and the nearest cross-street is ' + crash.h + '</p>')
+                  + '<p>There was ' + (crash.f === 'True' ? 'a bike lane ' : 'no bike lane ') + 'present.</p>'
                   + '</span>',
                   { minWidth: 300 }
               )
