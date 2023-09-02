@@ -188,9 +188,8 @@ Papa.parse('./data/crashes.csv', {
                         + '<br><p>Trafficway Ownership: ' + crash.s ==='' ? 'Public road' : 'Other')
                         + '<br><p>Motor vehicle was driving on: ' + crash.o + (crash.h === null ? '' : ' and the nearest cross-street is ' + crash.h + '</p>')
                         + '<p>There was ' + (crash.f === 'True' ? 'a bike lane ' : 'no bike lane ') + 'present.</p>'
-                        + '<a href="" target="_blank" onclick="showDiagram()">Show crash diagram.</a>'
-                        + '</span><br>'
-                        + '<span id="diagram" style="display:none;"><a href="' + diagramUrl + '" target="_blank"><img src="' + diagramUrl + '" alt="Crash diagram"></a></span>',
+                        + '<a href="' + diagramUrl + '" target="_blank"><img src="' + diagramUrl + '" style="display:none" alt="Crash diagram" />Show crash diagram.</a>'
+                        + '</span><br>',
                         { minWidth: 200 }
                     )
                 
