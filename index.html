@@ -1,24 +1,20 @@
-<!doctype html>
-
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>Motor Vehicle Crashes in New Haven Resulting in Serious Injury or Death</title>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Motor Vehicle Crashes in New Haven Resulting in Serious Injury or Death.">
-  <link rel="icon" type="image/png" href="./img/favicon.png">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tachyons/4.11.1/tachyons.min.css" integrity="sha512-d0v474klOFSF7qD9WDvyRxAvXaWSxCHDZdnBSZQjo8BpVr6vpjwAgqetpqkKP38DzlOzdVPaLVnzzW1Ba8wB9w==" crossorigin="anonymous" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.min.css" integrity="sha512-1xoFisiGdy9nvho8EgXuXvnpR5GAMSjFwp40gSRE3NwdUdIMIKuPa7bqoUhLD0O/5tPNhteAsE5XyyMi5reQVA==" crossorigin="anonymous" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ion-rangeslider/2.3.1/css/ion.rangeSlider.min.css" integrity="sha512-NWCafukXClS6fKch6bSMl/WvPzZrD1OGMf1oMAnFYXSSKZ7hgeswls+r4SdK4bFJauVwmvFf7HlMwji2TsjROA==" crossorigin="anonymous" />  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js" integrity="sha512-rKFvwjvE4liWPlFnvH4ZhRDfNZ9FOpdkD/BU5gAIA3VS3vOQrQ5BjKgbO3kxebKhHdHcNUHLqxQYSoxee9UwgA==" crossorigin="anonymous"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.js" integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==" crossorigin="anonymous"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.heat/0.2.0/leaflet-heat.js" integrity="sha512-KhIBJeCI4oTEeqOmRi2gDJ7m+JARImhUYgXWiOTIp9qqySpFUAJs09erGKem4E5IPuxxSTjavuurvBitBmwE0w==" crossorigin="anonymous"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/ion-rangeslider/2.3.1/js/ion.rangeSlider.min.js" integrity="sha512-kZsqvmw94Y8hyhwtWZJvDtobwQ9pLhF1DuIvcqSuracbRn6WJs1Ih+04fpH/8d1CFKysp7XA1tR0Aa2jKLTQUg==" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/leaflet.sync@0.2.4/L.Map.Sync.min.js"></script>
-</head>
-
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Motor Vehicle Crashes in New Haven Resulting in Serious Injury or Death.">
+    <title>Motor Vehicle Crashes in New Haven Resulting in Serious Injury or Death</title>
+    <link rel="icon" type="image/png" href="./img/favicon.png">
+    
+    <!-- CSS Libraries -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tachyons/4.11.1/tachyons.min.css" integrity="sha512-d0v474klOFSF7qD9WDvyRxAvXaWSxCHDZdnBSZQjo8BpVr6vpjwAgqetpqkKP38DzlOzdVPaLVnzzW1Ba8wB9w==" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.min.css" integrity="sha512-1xoFisiGdy9nvho8EgXuXvnpR5GAMSjFwp40gSRE3NwdUdIMIKuPa7bqoUhLD0O/5tPNhteAsE5XyyMi5reQVA==" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ion-rangeslider/2.3.1/css/ion.rangeSlider.min.css" integrity="sha512-NWCafukXClS6fKch6bSMl/WvPzZrD1OGMf1oMAnFYXSSKZ7hgeswls+r4SdK4bFJauVwmvFf7HlMwji2TsjROA==" crossorigin="anonymous" />
+    <link rel="stylesheet" href="./style.css">
+  </head>
 <body class="helvetica">
-
+  <!-- Filters -->
   <div id="filters" class="absolute bg-white o-70 pa2" style="z-index:999">
     <p class="f5 mb1 mt0">Crash Participants:</p>
     <label class="f7 label.mb1 pa1 dib  br2 bg-light-gray">
@@ -51,302 +47,33 @@
     </label>
   </div>
 
-  <div class=" w-100"><div id="map" class="mb3 vh-75 bg-near-white"></div></div>
+  <!-- Map Container -->
+  <div class="w-100">
+    <div id="map" class="mb3 vh-75 bg-near-white"></div>
+  </div>
 
-  <div class="w-80 center mt3"><div id="statsBox" class="" ><p class="fw2" id="statsText"></p></div></div>
+  <!-- Stats Box -->
+  <div class="w-80 center mt3">
+    <div id="statsBox">
+      <p class="fw2" id="statsText"></p>
+    </div>
+  </div>
 
+  <!-- Date Range Slider -->
   <div id="legend" class="w-80 center mt1 mb1">
     <form class="ph2 ml3 mr3">
       <input type="text" class="js-range-slider" name="dates" value="" />
     </form>
   </div>
 
-  <!-- 
-
-
-    End of HTML
-
-
-  -->
-
-  <script>
-
-    // Initialize Leaflet map for New Haven
-    let map = L.map('map', {
-      zoomControl: false,
-      inertia: false,
-      center: [41.308, -72.924],
-      zoom: 13,
-      minZoom: 13,
-      maxZoom: 19,
-      scrollWheelZoom: 'center',
-      attributionControl: false,
-      preferCanvas: true
-    })
-
-    L.control.zoom({position: 'topright'}).addTo(map)
-
-    // Add base layer and attach it to map
-    let CartoDB_VoyagerLabelsUnder = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png', {
-  	attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-  	subdomains: 'abcd',
-  	maxZoom: 19
-    }).addTo(map);
-    
-    // Add cycle route layer, leave unattached
-    let WaymarkedTrails_cycling = L.tileLayer('https://tile.waymarkedtrails.org/cycling/{z}/{x}/{y}.png', {
-      	attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors | Map style: &copy; <a href="https://waymarkedtrails.org">waymarkedtrails.org</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
-    })
-
-    $('#bike-lane-show').change(function() { // if the bike-lane-show checkbox is checked (event change)
-      if ($(this).prop('checked')) {
-          WaymarkedTrails_cycling.addTo(map);
-      } else {
-          WaymarkedTrails_cycling.remove();
-        }
-    });
-        
-    function dateToTS(date) {
-      return date.valueOf();
-    }
-    
-    function tsToDate(ts) {
-      let d = new Date(ts);
-  
-      return d.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: '2-digit',
-      });
-    }
-
-    // Set initial dates
-    let initFrom = dateToTS( new Date(2015, 0, 1) );
-    let initTo = dateToTS( new Date(2023, 7, 23) );
-
-    // Parse CSV file
-    Papa.parse('./data/crashes.csv', {
-      download: true,
-      header: true,
-      dynamicTyping: true,
-      complete: function(result) {
-
-        let data = result.data;
-
-        let heat = L.heatLayer(
-          [], 
-          { radius: 12,
-            blur: 10,
-            maxZoom: 17,
-            gradient: {0.4: 'blue', 0.6: 'lime', 
-            0.7: 'yellow', 0.8: 'red', 1: 'black'} 
-          }
-          ).addTo(map);
-
-        let individualPoints = L.layerGroup().addTo(map); // POIs are added here with the Leaflet layergroup function
-
-        let tsCoef = 100000.0 // original timestamp needs to be multiplied by this to work in JS
-
-        let updateStatsText = function(formattedFrom, formattedTo, 
-        crashesTotal, crashesPed, crashesCyc, crashesHitAndRun, 
-        crashesFatal, filtered) {
-
-          let text = formattedFrom === formattedTo
-            ? ('On '+ formattedFrom) : ('From <span class="fw4">' 
-              + formattedFrom + ' </span> to  <span class="fw4">' 
-              + formattedTo + "</span>")
-
-          text += ', there ' + (crashesTotal === 1 ? 'was ' : 'were  <span class="orange fw5">') + (crashesTotal === 0 ? 'no' : crashesTotal.toLocaleString())
-          text += ' dangerous motor vehicle crash' + (crashesTotal === 1 ? '' : 'es') + '</span> in or around <b>New Haven</b>.'
-
-          if (crashesTotal > 1) {
-            text += ' Of those, <span class="dark-pink fw5">' + (crashesPed > 0 ? crashesPed.toLocaleString() : ' none');
-            text += ' involved a pedestrian</span>, and <span class="dark-blue fw5">';
-            text += (crashesCyc > 0 ? crashesCyc.toLocaleString() : ' none');
-            text += ' involved a cyclist.</span>';
-            text += ' <span class="fw4">' + crashesHitAndRun + ' crashes were hit and runs.</span>';
-            text += ' <span class="dark-red fw6 bb"> ' + crashesFatal + ' crashes were fatal.</span>';
-          }
-
-          text += '<span class="i dark-green fw5' + (filtered ? '' : 'red') + '"><br><br>'
-            + (filtered ? filtered.toLocaleString() : 'No ') + ' crash'
-            + (filtered === 1 ? '' : 'es') + ' satisf' + (filtered === 1 ? 'ies' : 'y')
-            + ' your filtering criteria.</span>'
-
-          $('#statsText').html(text) // set the statsText div to the text variable
-
-        }
-
-        // Given `from` and `to` timestamps, updates the heatmap layer.
-        let updateHeatLayer = function(from, to) {
-
-            from = dateToTS(new Date(from * 1).setHours(0, 0, 0, 0)) / tsCoef;
-            to = dateToTS(new Date(to * 1).setHours(23, 59, 59, 0)) / tsCoef;
-
-            // All crashes between set dates
-            // Crashes variable assigned here from parse output of crashes.csv
-            let crashes = data.filter(function (point) {
-                return point.d >= from && point.d <= to;
-            })
-
-          let crashesFiltered = crashes.filter(function(point) {
-            return (( $('#local').prop('checked') ? point.r !== 1 : false)
-              || ( $('#highways').prop('checked') ? point.r === 1 : false))
-
-              && (( $('#vehiclesOnly').prop('checked') ? (point.c === 0 && point.p === 0) : false)
-              || ( $('#cyclists').prop('checked') ? point.c === 1 : false)
-              || ( $('#pedestrians').prop('checked') ? point.p === 1 : false))
-
-              && (( $('#injury').prop('checked') ? point.s === 'A' : false)
-              || ( $('#fatal').prop('checked') ? point.s === 'K' : true))
-
-              && (( $('#bikelane').prop('checked') ? point.f === 'True' : true)
-              || ( !$('#bikelane').prop('checked') ? point.f !== 'True' : false))
-
-              && (( $('#crashesHitAndRun').prop('checked') ? point.v === 'True' : true)
-              || ( !$('#crashesHitAndRun').prop('checked') ? point.v !== 'True' : false))
-          });
-
-          updateStatsText(
-            tsToDate(from * 100000),  // Date from
-            tsToDate(to * 100000),  // Date to
-            crashes.length, // Total crashes
-            crashes.filter(function(p) {return p.p === 1}).length,  // Ped crashes
-            crashes.filter(function(p) {return p.c === 1}).length,  // Cyc crashes
-            crashes.filter(function(p) {return p.v === 'True'}).length, // Hit and run status
-            crashes.filter(function(p) {return p.s === 'K'}).length, // Fatal crashes
-            crashesFiltered.length
-          )
-
-          // Despite zoom, clear individual points
-          individualPoints.clearLayers();
-
-          // Update the heatlayer
-          let intensity = 4;
-
-          // Main heatmap
-          document.addEventListener('DOMContentLoaded', function() {
-            // setLatLngs is a Leaflet function that accepts the filtered crashes and sets the heatmap layer to those crashes
-            heat.setLatLngs( 
-              crashesFiltered.map(function(point) { // crashesFiltered is the array of crashes that satisfy the filter criteria
-                return [point.x, point.y, intensity]; // x and y are the lat and long of the crash, intensity is the intensity of the heatmap
-                }
-              )
-            )
-          });
-
-          // If zoomed in all the way, show points instead of a heatmap
-          if ( map.getZoom() >= 15 ) {
-
-            heat.redraw();
-            let intensity = 3; // quickly adjusts intensity of heatmap
-
-            crashesFiltered.map(function(crash) {
-
-              let diagramUrl = 'https://www.ctcrash.uconn.edu/MMUCCDiagram?id=' + crash.id + '&asImage=true'
-
-              // L.circleMarker is a Leaflet function that creates a circle marker at the lat and long of the crash
-              let circle = L.circleMarker([crash.x, crash.y], { 
-                radius: 6,
-                color: '#000000',
-                fillColor: '#FFFFFF',
-                fillOpacity: 1,
-                opacity: 1,
-                weight: 2,
-              }).bindPopup(
-                '<span class="avenir">Crash ID: ' + crash.id + '<br>'
-                  + tsToDate(crash.d * tsCoef) + ' at ' + crash.t
-                  + '<a href="' + diagramUrl + '" target="_blank"><img src="' + diagramUrl + '" alt="Crash diagram" class="w-50"></a>'
-                  + '<br><p>Severity: ' + (crash.s === 'K' ? 'Fatal crash' : crash.s === 'A' ? 'Suspected Serious Injury' : 'Property damage only'
-                  + '<br><p>Trafficway Ownership: ' + crash.s ==='' ? 'Public road' : 'Other')
-                  + '<br><p>Motor vehicle was driving on: ' + crash.o + (crash.h === null ? '' : ' and the nearest cross-street is ' + crash.h + '</p>')
-                  + '<p>There was ' + (crash.f === 'True' ? 'a bike lane ' : 'no bike lane ') + 'present.</p>'
-                  + '</span>',
-                  { minWidth: 300 }
-              )
-
-              individualPoints.addLayer(circle);
-            })
-
-            if ( map.getZoom() >= 17 ) {
-
-              intensity = 3;
-              heat.setOptions({
-                maxZoom: 17,
-              })
-              if ( map.getZoom() >= 18) {
-
-                intensity = 0;
-              }
-            } else {
-
-              intensity = 4;
-              heat.setOptions({maxZoom: 17,})
-            }
-
-            // 
-            heat.setLatLngs(
-              crashesFiltered.map(function(point) {
-                return [point.x, point.y, intensity];
-                }
-              )
-            )
-          }
-
-          // If zoomed out, show a heatmap
-          else {
-            heat.setLatLngs(
-              crashesFiltered.map(function(point) {
-                return [point.x, point.y, intensity];
-                }
-              )
-            )
-          }
-        }
-
-        // Initialize Ion range slider
-        let slider = $(".js-range-slider").ionRangeSlider({
-          type: 'double',
-          min: dateToTS(new Date(2015, 0)),
-          max: dateToTS(new Date(2023, 6)),
-          from: initFrom,
-          to: initTo,
-          prettify: tsToDate,
-          skin: "big",
-          onChange: function(sliderData) {
-            updateHeatLayer(sliderData.from, sliderData.to);
-          }
-        });
-
-        // Re-draw heat layer when any filter (apart from street labels)
-        // is changed
-        $('#filters input').not('#labels').change(function (e) {
-            updateHeatLayer(
-                slider[0].value.split(';')[0],
-                slider[0].value.split(';')[1]
-            )
-        })
-
-        // Re-draw heat layer when zooming
-        map.on('zoomend', function () {
-            updateHeatLayer(
-                slider[0].value.split(';')[0],
-                slider[0].value.split(';')[1]
-            )
-        })
-        
-        // Set default properties
-        $('#filters #pedestrians').prop('checked', 'checked');
-        $('#filters #cyclists').prop('checked', 'checked');
-        $('#filters #fatal').prop('unchecked', 'unchecked');
-        $('#filters #local').prop('checked', 'checked');
-        updateHeatLayer( initFrom, initTo );
-      }
-    }) // End of Papa parse
-
-    L.control.attribution().addTo(map)
-
-  </script>
+  <!-- JavaScript Libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js" integrity="sha512-rKFvwjvE4liWPlFnvH4ZhRDfNZ9FOpdkD/BU5gAIA3VS3vOQrQ5BjKgbO3kxebKhHdHcNUHLqxQYSoxee9UwgA==" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.js" integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.heat/0.2.0/leaflet-heat.js" integrity="sha512-KhIBJeCI4oTEeqOmRi2gDJ7m+JARImhUYgXWiOTIp9qqySpFUAJs09erGKem4E5IPuxxSTjavuurvBitBmwE0w==" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ion-rangeslider/2.3.1/js/ion.rangeSlider.min.js" integrity="sha512-kZsqvmw94Y8hyhwtWZJvDtobwQ9pLhF1DuIvcqSuracbRn6WJs1Ih+04fpH/8d1CFKysp7XA1tR0Aa2jKLTQUg==" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/leaflet.sync@0.2.4/L.Map.Sync.min.js"></script>
+  <script src="./main.js"></script>
 
 </body>
 </html>
