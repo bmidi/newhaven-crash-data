@@ -8,10 +8,14 @@ let map = L.map('map', {
     maxZoom: 19,
     scrollWheelZoom: 'center',
     attributionControl: false,
-    preferCanvas: true
+    preferCanvas: true,
     })
 
 L.control.zoom({position: 'topright'}).addTo(map)
+
+let heatMapLock = false
+
+let circle;
 
 // Add base layer and attach it to map
 let CartoDB_VoyagerLabelsUnder = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png', {
@@ -49,7 +53,8 @@ function tsToDate(ts) {
 
 // Set initial dates
 let initFrom = dateToTS( new Date(2015, 0, 1) );
-let initTo = dateToTS( new Date(2023, 7, 23) );
+let initTo = dateToTS( new Date(2024, 2, 8) );
+let currentYear = dateToTS(new Date(2024, 0, 1) );
 
 // Parse CSV file
 Papa.parse('./data/crashes.csv', {
@@ -79,32 +84,34 @@ Papa.parse('./data/crashes.csv', {
         crashesTotal, crashesPed, crashesCyc, crashesHitAndRun, 
         crashesFatal, filtered) {
 
-        let text = formattedFrom === formattedTo
-            ? ('On '+ formattedFrom) : ('From <span class="fw4">' 
-            + formattedFrom + ' </span> to  <span class="fw4">' 
-            + formattedTo + "</span>")
+            let text = formattedFrom === formattedTo
+                ? ('On '+ formattedFrom) : ('From <span class="fw4">' 
+                + formattedFrom + ' </span> to  <span class="fw4">' 
+                + formattedTo + "</span>")
 
-        text += ', there ' + (crashesTotal === 1 ? 'was ' : 'were  <span class="orange fw5">') + (crashesTotal === 0 ? 'no' : crashesTotal.toLocaleString())
-        text += ' dangerous motor vehicle crash' + (crashesTotal === 1 ? '' : 'es') + '</span> in or around <b>New Haven</b>.'
+            text += ', there ' + (crashesTotal === 1 ? 'was ' : 'were  <span class="orange fw5">') + (crashesTotal === 0 ? 'no' : crashesTotal.toLocaleString())
+            text += ' dangerous motor vehicle crash' + (crashesTotal === 1 ? '' : 'es') + '</span> in or around <b>New Haven</b>.'
 
-        if (crashesTotal > 1) {
-            text += ' Of those, <span class="dark-pink fw5">' + (crashesPed > 0 ? crashesPed.toLocaleString() : ' none');
-            text += ' involved a pedestrian</span>, and <span class="dark-blue fw5">';
-            text += (crashesCyc > 0 ? crashesCyc.toLocaleString() : ' none');
-            text += ' involved a cyclist.</span>';
-            text += ' <span class="fw4">' + crashesHitAndRun + ' crashes were hit and runs.</span>';
-            text += ' <span class="dark-red fw6 bb"> ' + crashesFatal + ' crashes were fatal.</span>';
+            if (crashesTotal > 1) {
+                text += ' Of those, <span class="dark-pink fw5">' + (crashesPed > 0 ? crashesPed.toLocaleString() : ' none');
+                text += ' involved a pedestrian</span>, and <span class="dark-blue fw5">';
+                text += (crashesCyc > 0 ? crashesCyc.toLocaleString() : ' none');
+                text += ' involved a cyclist.</span>';
+                text += ' <span class="fw4">' + crashesHitAndRun + ' crashes were hit and runs.</span>';
+                text += ' <span class="dark-red fw6 bb"> ' + crashesFatal + ' crashes were fatal.</span>';
+            }
+
+            text += ' <br><p><a href="#" id="currentYearLink">2024 statistics</a> - <a href="#" id="resetSlider">reset range</a></p>'
+
+            text += '<span class="i dark-green fw5' + (filtered ? '' : 'red') + '"><br><br>'
+                + (filtered ? filtered.toLocaleString() : 'No ') + ' crash'
+                + (filtered === 1 ? '' : 'es') + ' satisf' + (filtered === 1 ? 'ies' : 'y')
+                + ' your filtering criteria.</span>'
+
+            $('#statsText').html(text) // set the statsText div to the text variable
+        
         }
-
-        text += '<span class="i dark-green fw5' + (filtered ? '' : 'red') + '"><br><br>'
-            + (filtered ? filtered.toLocaleString() : 'No ') + ' crash'
-            + (filtered === 1 ? '' : 'es') + ' satisf' + (filtered === 1 ? 'ies' : 'y')
-            + ' your filtering criteria.</span>'
-
-        $('#statsText').html(text) // set the statsText div to the text variable
-    
-        }
-
+        
         // Given `from` and `to` timestamps, updates the heatmap layer.
         let updateHeatLayer = function(from, to) {
 
@@ -241,8 +248,8 @@ Papa.parse('./data/crashes.csv', {
         // Initialize Ion range slider
         let slider = $(".js-range-slider").ionRangeSlider({
             type: 'double',
-            min: dateToTS(new Date(2015, 0)),
-            max: dateToTS(new Date(2023, 6)),
+            min: dateToTS(initFrom),
+            max: dateToTS(initTo),
             from: initFrom,
             to: initTo,
             prettify: tsToDate,
@@ -261,19 +268,37 @@ Papa.parse('./data/crashes.csv', {
         })
 
         // Re-draw heat layer when zooming
-        map.on('zoomend', function () {
-            updateHeatLayer(
-                slider[0].value.split(';')[0],
-                slider[0].value.split(';')[1]
-            )
-        })
-      
-      // Set default properties
-      $('#filters #pedestrians').prop('checked', 'checked');
-      $('#filters #cyclists').prop('checked', 'checked');
-      $('#filters #fatal').prop('unchecked', 'unchecked');
-      $('#filters #local').prop('checked', 'checked');
-      updateHeatLayer( initFrom, initTo );
+            map.on('zoomend', function () {
+                if (heatMapLock === false) {
+                    updateHeatLayer(
+                        slider[0].value.split(';')[0],
+                        slider[0].value.split(';')[1]
+                    );
+                }
+            });
+
+        $(document).on('click', '#currentYearLink', function() {
+            heatMapLock = true;
+            map.on('zoomend', function () {
+                heat.redraw();
+                updateHeatLayer(currentYear,initTo);
+            })
+            updateHeatLayer(currentYear,initTo);
+            console.log('heatmap lock = ' + heatMapLock);
+        });
+
+        $(document).on('click', '#resetSlider', function(event) {
+            heatMapLock = false;
+            updateHeatLayer(initFrom,initTo);
+            console.log('heatmap lock = ' + heatMapLock);
+        });
+          
+        // Set default properties
+        $('#filters #pedestrians').prop('checked', 'checked');
+        $('#filters #cyclists').prop('checked', 'checked');
+        $('#filters #fatal').prop('unchecked', 'unchecked');
+        $('#filters #local').prop('checked', 'checked');
+        updateHeatLayer( initFrom, initTo );
     }
 
 }) // End of Papa parse
