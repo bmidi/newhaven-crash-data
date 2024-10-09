@@ -13,8 +13,6 @@ let map = L.map('map', {
 
 L.control.zoom({position: 'topright'}).addTo(map)
 
-let heatMapLock = false
-
 let circle;
 
 // Add base layer and attach it to map
@@ -53,7 +51,7 @@ function tsToDate(ts) {
 
 // Set initial dates
 let initFrom = dateToTS( new Date(2015, 0, 1) );
-let initTo = dateToTS( new Date(2024, 2, 8) );
+let initTo = dateToTS( new Date(2024, 10, 8) );
 let currentYear = dateToTS(new Date(2024, 0, 1) );
 
 // Parse CSV file
@@ -78,7 +76,7 @@ Papa.parse('./data/crashes.csv', {
 
         let individualPoints = L.layerGroup().addTo(map); // POIs are added here with the Leaflet layergroup function
 
-        let tsCoef = 100000.0 // original timestamp needs to be multiplied by this to work in JS
+        const tsCoef = 100000.0 // original timestamp needs to be multiplied by this to work in JS
 
         let updateStatsText = function(formattedFrom, formattedTo, 
         crashesTotal, crashesPed, crashesCyc, crashesHitAndRun, 
@@ -161,10 +159,10 @@ Papa.parse('./data/crashes.csv', {
 
             // Main heatmap
             document.addEventListener('DOMContentLoaded', function() {
-                // setLatLngs is a Leaflet function that accepts the filtered crashes and sets the heatmap layer to those crashes
+                // setLatLngs is a Leaflet function that accepts the  crash data and sets the heatmap layer to those crashes
                 heat.setLatLngs(
                     crashesFiltered.map(function(point) { // crashesFiltered is the array of crashes that satisfy the filter criteria
-                    return [point.x, point.y, intensity]; // x and y are the lat and long of the crash, intensity is the intensity of the heatmap
+                    return [point.x, point.y, intensity]; // x and y are the lat and long of the crash, intensity is the strength of the heatmap
                 
                 })
             )
@@ -202,7 +200,7 @@ Papa.parse('./data/crashes.csv', {
                 
                 // Unused function, but could be used to show crash diagram
                 function showDiagram() {
-                    var diagramElement = document.getElementById("diagram");
+                    let diagramElement = document.getElementById("diagram");
                     diagramElement.style.display = "block"
                 }
                 
@@ -268,29 +266,23 @@ Papa.parse('./data/crashes.csv', {
         })
 
         // Re-draw heat layer when zooming
-            map.on('zoomend', function () {
-                if (heatMapLock === false) {
-                    updateHeatLayer(
-                        slider[0].value.split(';')[0],
-                        slider[0].value.split(';')[1]
-                    );
-                }
-            });
+        map.on('zoomend', function () {
+            updateHeatLayer(
+                slider[0].value.split(';')[0],
+                slider[0].value.split(';')[1]
+            );
+        });
 
         $(document).on('click', '#currentYearLink', function() {
-            heatMapLock = true;
             map.on('zoomend', function () {
                 heat.redraw();
                 updateHeatLayer(currentYear,initTo);
             })
             updateHeatLayer(currentYear,initTo);
-            console.log('heatmap lock = ' + heatMapLock);
         });
 
         $(document).on('click', '#resetSlider', function(event) {
-            heatMapLock = false;
             updateHeatLayer(initFrom,initTo);
-            console.log('heatmap lock = ' + heatMapLock);
         });
           
         // Set default properties
