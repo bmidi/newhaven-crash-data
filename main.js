@@ -55,6 +55,8 @@ const tsToDate = (ts) => {
 const initFrom = dateToTS( new Date(2015, 0, 1) );
 const initTo = dateToTS( new Date(2024, 10, 8) );
 const currentYear = dateToTS(new Date(2024, 0, 1) );
+let activeFrom = initFrom;
+let activeTo = initTo;
 
 // Parse CSV file
 Papa.parse('./data/crashes.csv', {
@@ -249,8 +251,8 @@ Papa.parse('./data/crashes.csv', {
             type: 'double',
             min: dateToTS(initFrom),
             max: dateToTS(initTo),
-            from: initFrom,
-            to: initTo,
+            from: activeFrom,
+            to: activeTo,
             prettify: tsToDate,
             skin: "big",
             onChange: function(sliderData) {
@@ -260,24 +262,18 @@ Papa.parse('./data/crashes.csv', {
 
         // Re-draw heat layer when any filter (apart from street labels) is changed
         $('#filters input').not('#labels').change( () => {
-            updateHeatLayer(
-                slider[0].value.split(';')[0],
-                slider[0].value.split(';')[1]
-            )
-        })
+            updateHeatLayer(activeFrom, activeTo);  // Use activeFrom and activeTo state
+        });
 
         // Re-draw heat layer when zooming
         map.on('zoomend', function () {
-            updateHeatLayer(
-                slider[0].value.split(';')[0],
-                slider[0].value.split(';')[1]
-            );
+            updateHeatLayer(activeFrom, activeTo);  // Using activeFrom and activeTo instead of the slider values
         });
 
         $(document).on('click', '#currentYearLink', function() {
             map.on('zoomend', function () {
                 heat.redraw();
-                updateHeatLayer(currentYear,initTo);
+                updateHeatLayer(activeFrom,activeTo);
             })
             updateHeatLayer(currentYear,initTo);
         });
