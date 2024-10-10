@@ -14,21 +14,23 @@ const initializeMap = () => {
     L.control.zoom({position: 'topright'}).addTo(map);
     return map;
 };
-
 const map = initializeMap();
 let circle;
 
 // Add base layer and attach it to map
-let CartoDB_VoyagerLabelsUnder = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png', {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-    subdomains: 'abcd',
-    maxZoom: 19
-}).addTo(map);
+const addBaseLayer = () => {
+    return L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+        subdomains: 'abcd',
+        maxZoom: 19
+    }).addTo(map);
+};
+addBaseLayer();
 
 // Add cycle route layer, leave unattached
-let WaymarkedTrails_cycling = L.tileLayer('https://tile.waymarkedtrails.org/cycling/{z}/{x}/{y}.png', {
-        attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors | Map style: &copy; <a href="https://waymarkedtrails.org">waymarkedtrails.org</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
-})
+const WaymarkedTrails_cycling = L.tileLayer('https://tile.waymarkedtrails.org/cycling/{z}/{x}/{y}.png', {
+    attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors | Map style: &copy; <a href="https://waymarkedtrails.org">waymarkedtrails.org</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
+});
 
 $('#bike-lane-show').change(function() { // if the bike-lane-show checkbox is checked (event change)
     if ($(this).prop('checked')) {
@@ -37,9 +39,9 @@ $('#bike-lane-show').change(function() { // if the bike-lane-show checkbox is ch
         WaymarkedTrails_cycling.remove();
     }
 });
-    
-const dateToTS = (date) => date.valueOf();
 
+// Date utilities
+const dateToTS = (date) => date.valueOf();
 const tsToDate = (ts) => {
     let d = new Date(ts);
     return d.toLocaleDateString('en-US', {
@@ -50,9 +52,9 @@ const tsToDate = (ts) => {
 }
 
 // Set initial dates
-let initFrom = dateToTS( new Date(2015, 0, 1) );
-let initTo = dateToTS( new Date(2024, 10, 8) );
-let currentYear = dateToTS(new Date(2024, 0, 1) );
+const initFrom = dateToTS( new Date(2015, 0, 1) );
+const initTo = dateToTS( new Date(2024, 10, 8) );
+const currentYear = dateToTS(new Date(2024, 0, 1) );
 
 // Parse CSV file
 Papa.parse('./data/crashes.csv', {
@@ -64,7 +66,7 @@ Papa.parse('./data/crashes.csv', {
 
         let data = result.data;
 
-        let heat = L.heatLayer(
+        const heat = L.heatLayer(
             [], 
             { radius: 12,
             blur: 10,
@@ -74,7 +76,7 @@ Papa.parse('./data/crashes.csv', {
             }
         ).addTo(map);
 
-        let individualPoints = L.layerGroup().addTo(map); // POIs are added here with the Leaflet layergroup function
+        const individualPoints = L.layerGroup().addTo(map); // POIs are added here with the Leaflet layergroup function
 
         const tsCoef = 100000.0 // original timestamp needs to be multiplied by this to work in JS
 
@@ -198,7 +200,7 @@ Papa.parse('./data/crashes.csv', {
                         { minWidth: 200 }
                     )
                 
-                // Unused function, but could be used to show crash diagram
+                // Unused function, but could be used to show crash diagram in popup window
                 function showDiagram() {
                     let diagramElement = document.getElementById("diagram");
                     diagramElement.style.display = "block"
@@ -218,7 +220,6 @@ Papa.parse('./data/crashes.csv', {
                 })
 
                 // If zoomed in all the way, show points instead of a heatmap
-                // Adjust heatmap as zoom changes
                 if ( map.getZoom() >= 17 ) {
                     intensity = 1;
                     heat.setOptions({
@@ -241,7 +242,7 @@ Papa.parse('./data/crashes.csv', {
                         return [point.x, point.y, intensity];}))
             }
 
-        } // End of updateHeatLayer function
+        }
 
         // Initialize Ion range slider
         let slider = $(".js-range-slider").ionRangeSlider({
@@ -258,7 +259,7 @@ Papa.parse('./data/crashes.csv', {
         });
 
         // Re-draw heat layer when any filter (apart from street labels) is changed
-        $('#filters input').not('#labels').change(function (e) {
+        $('#filters input').not('#labels').change( () => {
             updateHeatLayer(
                 slider[0].value.split(';')[0],
                 slider[0].value.split(';')[1]
