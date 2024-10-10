@@ -1,18 +1,21 @@
 // Initialize Leaflet map for New Haven
-let map = L.map('map', {
-    zoomControl: false,
-    inertia: false,
-    center: [41.308, -72.924],
-    zoom: 13,
-    minZoom: 13,
-    maxZoom: 19,
-    scrollWheelZoom: 'center',
-    attributionControl: false,
-    preferCanvas: true,
-    })
+const initializeMap = () => {
+    let map = L.map('map', {
+        zoomControl: false,
+        inertia: false,
+        center: [41.308, -72.924],
+        zoom: 13,
+        minZoom: 13,
+        maxZoom: 19,
+        scrollWheelZoom: 'center',
+        attributionControl: false,
+        preferCanvas: true,
+    });
+    L.control.zoom({position: 'topright'}).addTo(map);
+    return map;
+};
 
-L.control.zoom({position: 'topright'}).addTo(map)
-
+const map = initializeMap();
 let circle;
 
 // Add base layer and attach it to map
@@ -35,13 +38,10 @@ $('#bike-lane-show').change(function() { // if the bike-lane-show checkbox is ch
     }
 });
     
-function dateToTS(date) {
-    return date.valueOf();
-}
+const dateToTS = (date) => date.valueOf();
 
-function tsToDate(ts) {
+const tsToDate = (ts) => {
     let d = new Date(ts);
-    
     return d.toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'short',
