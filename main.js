@@ -33,6 +33,7 @@ const WaymarkedTrails_cycling = L.tileLayer('https://tile.waymarkedtrails.org/cy
 });
 
 $('#bike-lane-show').change(function() { // if the bike-lane-show checkbox is checked (event change)
+    console.log("Toggling bike lanes");
     if ($(this).prop('checked')) {
         WaymarkedTrails_cycling.addTo(map);
     } else {
@@ -116,6 +117,8 @@ Papa.parse('./data/crashes.csv', {
         
         // Given `from` and `to` timestamps, updates the heatmap layer.
         let updateHeatLayer = function(from, to) {
+
+            console.log("Updating heat layer with range:", from, to);
 
             from = dateToTS(new Date(from * 1).setHours(0, 0, 0, 0)) / tsCoef;
             to = dateToTS(new Date(to * 1).setHours(23, 59, 59, 0)) / tsCoef;
@@ -246,8 +249,10 @@ Papa.parse('./data/crashes.csv', {
 
         }
 
+        let sliderInstance;
+
         // Initialize Ion range slider
-        let slider = $(".js-range-slider").ionRangeSlider({
+        $(".js-range-slider").ionRangeSlider({
             type: 'double',
             min: dateToTS(initFrom),
             max: dateToTS(initTo),
@@ -256,30 +261,41 @@ Papa.parse('./data/crashes.csv', {
             prettify: tsToDate,
             skin: "big",
             onChange: function(sliderData) {
-              updateHeatLayer(sliderData.from, sliderData.to);
+                activeFrom = sliderData.from;
+                activeTo = sliderData.to;
+                updateHeatLayer(sliderData.from, sliderData.to);
             }
         });
 
+        sliderInstance = $(".js-range-slider").data("ionRangeSlider");
+
         // Re-draw heat layer when any filter (apart from street labels) is changed
         $('#filters input').not('#labels').change( () => {
-            updateHeatLayer(activeFrom, activeTo);  // Use activeFrom and activeTo state
+            updateHeatLayer(activeFrom, activeTo);
         });
 
         // Re-draw heat layer when zooming
         map.on('zoomend', function () {
-            updateHeatLayer(activeFrom, activeTo);  // Using activeFrom and activeTo instead of the slider values
+            updateHeatLayer(activeFrom, activeTo);
         });
 
         $(document).on('click', '#currentYearLink', function() {
-            map.on('zoomend', function () {
-                heat.redraw();
-                updateHeatLayer(activeFrom,activeTo);
-            })
-            updateHeatLayer(currentYear,initTo);
+            activeFrom = currentYear;
+            updateHeatLayer(activeFrom,activeTo);
+            sliderInstance.update({
+                from: activeFrom,
+                to: activeTo
+            });        
         });
 
         $(document).on('click', '#resetSlider', function(event) {
-            updateHeatLayer(initFrom,initTo);
+            activeFrom = initFrom;
+            activeTo = initTo;
+            updateHeatLayer(activeFrom,activeTo);
+            sliderInstance.update({
+                from: activeFrom,
+                to: activeTo
+            });        
         });
           
         // Set default properties
