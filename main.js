@@ -33,7 +33,6 @@ const WaymarkedTrails_cycling = L.tileLayer('https://tile.waymarkedtrails.org/cy
 });
 
 $('#bike-lane-show').change(function() { // if the bike-lane-show checkbox is checked (event change)
-    console.log("Toggling bike lanes");
     if ($(this).prop('checked')) {
         WaymarkedTrails_cycling.addTo(map);
     } else {
@@ -118,7 +117,8 @@ Papa.parse('./data/crashes.csv', {
         // Given `from` and `to` timestamps, updates the heatmap layer.
         let updateHeatLayer = function(from, to) {
 
-            console.log("Updating heat layer with range:", from, to);
+            // debug heat layer range
+            // console.log("Updating heat layer with range:", from, to);
 
             from = dateToTS(new Date(from * 1).setHours(0, 0, 0, 0)) / tsCoef;
             to = dateToTS(new Date(to * 1).setHours(23, 59, 59, 0)) / tsCoef;
@@ -214,7 +214,6 @@ Papa.parse('./data/crashes.csv', {
                 circle.on('popupopen', function () {
                     filters.style.display = "none";
                     map.setLatLng(map.getCenter() + [0, 0.0001]);
-                    console.log(map.getCenter())
                 });
 
                 circle.on('popupclose', function () {
@@ -285,7 +284,7 @@ Papa.parse('./data/crashes.csv', {
             sliderInstance.update({
                 from: activeFrom,
                 to: activeTo
-            });        
+            });
         });
 
         $(document).on('click', '#resetSlider', function(event) {
